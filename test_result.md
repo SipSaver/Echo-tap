@@ -101,3 +101,81 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Build Echo Tap mobile game (Expo). MVP: local device high score only, placeholder SFX later, simple difficulty scaling (spawn rate + speed)."
+
+backend:
+  - task: "FastAPI baseline up and reachable at /api"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Backend template running; no game-specific endpoints needed for MVP. Test basic GET /api and POST/GET /api/status."
+
+frontend:
+  - task: "Main Menu screen with navigation"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Title, Play, Settings implemented with neon style."
+  - task: "Gameplay: ripple mechanic + obstacles + collisions + scaling"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/game.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Tap to emit ripple, pushback, spawn with increasing difficulty, pause, game over."
+  - task: "Local high score persistence"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/game.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "AsyncStorage key echo_best set when new best achieved."
+  - task: "Settings screen (view/reset high score)"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/settings.tsx"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Displays best score and allows reset."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Backend base endpoints reachable"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Please verify backend health first (GET /api should return Hello World; POST /api/status with client_name should persist; GET /api/status should list entries). Frontend testing will be requested after backend is confirmed."
