@@ -78,7 +78,8 @@ export default function Index() {
   const loop = useCallback((ts: number) => {
     raf.current = requestAnimationFrame(loop);
     if (last.current == null) last.current = ts;
-    const dt = Math.min(64, ts - last.current) / 1000;
+    const dtMs = Math.min(64, ts - last.current);
+    const dt = dtMs / 1000;
     last.current = ts;
 
     // periodic center ripple
