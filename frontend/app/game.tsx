@@ -297,10 +297,7 @@ export default function Game() {
       const y = c.y + Math.sin(o.angle) * o.radius;
       const qNow = getQuadrantFromPoint(x, y);
 
-      // Avoid multiple HP decrements per frame for same obstacle
-      let damagedThisFrame = false;
-
-      // Ripple interaction
+      // Ripple interaction: damage only once per ripple id
       for (let i = 0; i < rippleArr.length; i++) {
         const r = rippleArr[i];
         const radialDiff = Math.abs(o.radius - r.radius);
@@ -312,10 +309,10 @@ export default function Game() {
             if (o.tough) pushBase *= TOUGH_PUSH_MULT; // tougher = heavier knockback
             const push = pushBase * strength * dt;
             o.radius += push;
-            if (!damagedThisFrame) {
-              // One HP max per frame regardless of overlapping ripples
+            // Damage once per ripple id to require multiple distinct waves
+            if (!o.hitBy.has(r.id)) {
               o.hp -= 1;
-              damagedThisFrame = true;
+              o.hitBy.add(r.id);
             }
           }
         }
