@@ -1,0 +1,110 @@
+<analysis>
+The development trajectory for the Echo Tap mobile game by the previous AI engineer progressed through several iterative phases, beginning with core gameplay mechanics and extending into UI/UX enhancements and audio integration. Initial efforts focused on establishing fundamental game logic, such as ripple effects, obstacle spawning, and collision detection, alongside essential screens like the Main Menu and Game Over. A significant portion of the work involved refining the core loop, implementing a quadrant-based energy system, and detailed obstacle behaviors (multi-hit, health bars, spawn delays). Later stages shifted towards polishing the user experience, particularly on the Main Menu, by adding complex animations, reactive elements, and color customization. Challenges frequently arose around state management within the game loop, ensuring UI animations were stable across screen transitions, and correctly handling platform-specific styling for visual elements like text shadows. The process involved a continuous cycle of feature implementation, user feedback, debugging, and refinement, demonstrating an agile approach to development.
+</analysis>
+
+<product_requirements>
+The goal is to build Echo Tap, a hypercasual, arcade, endless survival mobile game with one-tap input. The core loop involves the player tapping to release a ripple pushing obstacles outward from the center, surviving as long as no obstacles reach the core. Difficulty increases over time.
+
+**Game Flow:**
+*   **Splash Screen:** Logo animation, auto-transitions.
+*   **Main Menu:** “Echo Tap” title, Play, Settings, Customization buttons. Animated background ripples and particles. Buttons react to tap/hover. Title animates (currently color cycling with breathing glow).
+*   **Gameplay Screen:** Black/neon background, central player core, obstacles from edges. UI: Score, Pause button.
+*   **Pause Menu:** Resume, Restart, Main Menu.
+*   **Game Over Screen:** Final Score, Best Score (device-only), Retry, Main Menu.
+
+**Core Mechanics:**
+*   **Player Action (Tap → Ripple):**
+    *   **Quadrant Tap:** Tap a quadrant for a quarter-ripple, pushing only that quadrant. Costs 8% energy, 120ms cooldown.
+    *   **Center Tap (Full Wave):** Tap center for full-circle ripple. Costs 40% energy, 320ms cooldown.
+*   **Energy System:** Bar visible in HUD, regenerates 6.5%/sec. Taps consume energy. Cannot cast if insufficient energy.
+*   **Obstacles:**
+    *   Spawn from screen edges, move linearly to center.
+    *   Collision with ripple pushes obstacles back. Tough enemies (2-HP, 3-HP) have increased knockback (3-HP > 2-HP).
+    *   Collision with core = Game Over (unless Power Orb).
+    *   **1-HP:** Default circles (blue), no health bar.
+    *   **2-HP:** Purple squares. Health bar appears *after* first hit, requires multiple distinct ripples to destroy. Spawns every 2-3 seconds. Slows for 0.5s after hit.
+    *   **3-HP:** Purple circles. Health bar appears *after* first hit, requires multiple distinct ripples to destroy. Spawns every 4-5 seconds. Slows for 0.5s after hit.
+    *   **Power Orb:** Yellow circles, 3 HP. Spawns every 7 seconds. Destroyed -> 100% energy. Reaches core -> -5% energy, no game over.
+*   **Difficulty Scaling:** Spawn rate and obstacle speed increase over time.
+*   **Game Zoom:** Playfield zoomed out for more reaction time.
+*   **Post-Hit Slowdown:** Multi-HP enemies slow for 0.5s after hit, then resume original speed.
+
+**Art & Visuals:** Minimalist neon + black. Specific colors/shapes for obstacles.
+**Audio:**  for quadrant blast,  for full-circle blast.
+**Scoring:** +1 point per second survived. High Score saved locally.
+**Customization:** Change colors of full blast, quadrant blast, and core. Persistent via local storage.
+**HUD:** Score, energy bar, pause button adjusted to avoid Dynamic Island/status bar.
+</product_requirements>
+
+<key_technical_concepts>
+-   **React Native/Expo:** Core mobile development framework.
+-   **Expo Router:** File-based navigation for screens.
+-   **Zustand/AsyncStorage:** Frontend state management and local data persistence.
+-   **react-native-svg:** Vector graphics for game elements and UI animations.
+-   **react-native-reanimated:** Advanced animations for UI.
+-   **expo-av:** Audio playback for sound effects.
+-   **requestAnimationFrame:** Game loop and smooth UI animations.
+-   **useFocusEffect:** React Navigation hook for screen lifecycle management.
+</key_technical_concepts>
+
+<code_architecture>
+The application follows a full-stack architecture with an Expo (React Native) frontend, a FastAPI backend, and a MongoDB database.
+
+**Directory Structure:**
+
+
+-   ****:
+    -   **Importance:** This is the main menu screen and the entry point for the user. It contains the Echo Tap title, Play, Customization, and Settings buttons.
+    -   **Changes Made:** Initially a static menu, it now features a complex animated background with slowly expanding ripples and drifting particles. The title animates with a color-cycling neon glow. Buttons exhibit reactive behaviors on tap. Animation loops are managed with  and  for performance and correct lifecycle.
+
+-   ****:
+    -   **Importance:** This file contains the entire core game logic, rendering, state management, and interaction. It defines how ripples are created, obstacles spawn and move, collisions are handled, and the energy system operates.
+    -   **Changes Made:** Extensive modifications for core mechanics, including quadrant/center tap logic, energy consumption/regeneration, varied obstacle types (1-HP, 2-HP, 3-HP, Power Orb), specific pushback, post-hit slowdown, health bar rendering, and spawn delays. State is managed using  for game loop variables (e.g., , , , ) to ensure smooth updates with . SFX are loaded and played here using . HUD elements (score, energy, pause) are adjusted for safe area insets.
+
+-   ****:
+    -   **Importance:** Provides a simple screen for users to view their best score and reset it.
+    -   **Changes Made:** Basic implementation to display and clear locally stored high scores via .
+
+-   ****:
+    -   **Importance:** A new screen added for user personalization, allowing them to change the colors of their full blast, quadrant blast, and the central core.
+    -   **Changes Made:** Implemented a UI with color swatches and a live preview. It integrates with  to persist user choices.
+
+-   ****:
+    -   **Importance:** A Zustand store responsible for managing and persisting the user's chosen color scheme for game elements.
+    -   **Changes Made:** Created to store , , and  with  persistence, allowing customization choices to survive app restarts.
+
+-   ****:
+    -   **Importance:** Defines the navigation structure of the application using Expo Router's stack navigation.
+    -   **Changes Made:** Configured the navigation stack, including the , , , and  screens. Headers are hidden for a full-screen mobile experience.
+
+-   ****:
+    -   **Importance:** Lists all frontend dependencies.
+    -   **Changes Made:** Updated to include  for audio, ensuring the project has the necessary libraries for sound effects.
+
+-   ****:
+    -   **Importance:** Provides backend services. Currently minimal for MVP.
+    -   **Changes Made:** Contains baseline API endpoints (, ) for health checks and simple data persistence with MongoDB, though the frontend does not extensively utilize it for core gameplay data as per MVP requirements.
+</code_architecture>
+
+<pending_tasks>
+-   Splash screen animation.
+-   Visual polish: glow trails, shader-like ring fade, better obstacle variety.
+-   Fix peer warnings by pinning versions.
+-   Run automated frontend tests (repeatedly offered by AI, not explicitly requested).
+-   Add diagonal movers for obstacles.
+-   Fine-tune energy regen/costs, cooldowns, pushback, tough spawn rate, cluster frequency.
+-   Add a tiny not enough energy text pulse feedback.
+-   Add Energy Refilled! text pulse / -5% floating text feedback for Power Orbs.
+-   Add left/right margins responsive to safe areas (for landscape).
+-   Add a Randomize style button or preset themes to customization.
+-   Offline bundling of MP3 sound files.
+-   Individual volume sliders or a global mute toggle.
+</pending_tasks>
+
+<current_work>
+Immediately prior to this summary request, the previous AI engineer fixed a critical  in . This error () was preventing the application from loading to the main screen. The root cause was identified as a leftover  placeholder from a previous file edit and potentially incorrect import paths for the state store or unregistered screen routes. The AI successfully removed the problematic placeholder, corrected import paths, and ensured the new  screen was correctly registered in . As a result, the application should now load correctly to the main menu, and all implemented features, including the game logic, customization, and SFX, should be functional. After confirming this fix, the user issued a new request regarding image assets and button layouts on the main screen.
+</current_work>
+
+<optional_next_step>
+Make all images local assets and incorporate specific PNGs (, , ) next to their respective buttons on the main screen, while also arranging the Customization and Settings buttons side-by-side.
+</optional_next_step>
