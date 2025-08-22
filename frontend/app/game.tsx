@@ -274,6 +274,9 @@ export default function Game() {
     next2HpCooldownRef.current = Math.max(0, next2HpCooldownRef.current - dtMs);
     next3HpCooldownRef.current = Math.max(0, next3HpCooldownRef.current - dtMs);
 
+    // Power orb cooldown handled independently
+    powerCooldownRef.current = Math.max(0, powerCooldownRef.current - dtMs);
+
     if (pausedRef.current || gameOverRef.current) {
       lastTime.current = t;
       return;
