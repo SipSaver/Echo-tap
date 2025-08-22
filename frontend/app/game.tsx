@@ -233,26 +233,26 @@ export default function Game() {
     // Spawn a bit further out to increase reaction time
     const radius = maxRadiusRef.current + 80;
     const size = 10 + Math.random() * 12;
-    const shape: Shape = Math.random() > 0.5 ? "circle" : "square";
 
     // Decide hp tier with per-tier cooldowns
     const canSpawn2 = next2HpCooldownRef.current <= 0;
     const canSpawn3 = next3HpCooldownRef.current <= 0;
 
-    // Base probabilities that scale with difficulty
-    const p3 = Math.min(0.25, 0.05 + (speedMultiplier.current - 1) * 0.08); // 5% -> 25%
-    const p2 = Math.min(0.40, 0.12 + (speedMultiplier.current - 1) * 0.12); // 12% -> 40%
-
+    // Enforce fixed cadence windows instead of pure probability
+    // 3-HP: only eligible every 4-5s; 2-HP: only eligible every 2-3s
     let hp = 1;
-    if (canSpawn3 && Math.random() < p3) {
+    if (canSpawn3 && Math.random() < 0.8) { // when window is open, likely spawn a 3-HP
       hp = 3;
-      next3HpCooldownRef.current = 2000 + Math.random() * 1000; // 2-3s
-    } else if (canSpawn2 && Math.random() < p2) {
+      next3HpCooldownRef.current = 4000 + Math.random() * 1000; // 4-5s
+    } else if (canSpawn2 && Math.random() < 0.7) { // when window is open, likely spawn a 2-HP
       hp = 2;
-      next2HpCooldownRef.current = 1000 + Math.random() * 1000; // 1-2s
+      next2HpCooldownRef.current = 2000 + Math.random() * 1000; // 2-3s
     }
 
     const tough = hp > 1;
+
+    // Shape/color rules by HP
+    const shape: Shape = hp === 2 ? "square" : "circle"; // 3-HP circle, 2-HP square, 1-HP retains circle
 
     obstacles.current.push({ id: nextId.current++, angle, radius, size, shape, speed: BASE_OBSTACLE_SPEED * speedMultiplier.current, hp, maxHp: hp, tough, hitBy: new Set<number>() });
   };
