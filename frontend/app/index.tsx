@@ -139,7 +139,7 @@ export default function Index() {
   const Letter = ({ ch, index }: { ch: string; index: number }) => {
     // phase offset per letter
     const anim = useAnimatedStyle(() => {
-      const phase = (pulse.value + index * 0.08) % 1;
+      const phase = (pulse.value - index * 0.08 + 1) % 1;
       const scale = interpolate(phase, [0, 0.25, 1], [0.6, 1, 1]);
       const opacity = interpolate(phase, [0, 0.15, 0.3], [0, 0.6, 1]);
       return { transform: [{ scale }], opacity } as any;
