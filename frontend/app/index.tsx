@@ -6,6 +6,7 @@ import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, G, Rect } from "react-native-svg";
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming, interpolateColor, Easing } from "react-native-reanimated";
+import { Ionicons } from "@expo/vector-icons";
 
 const COLORS = {
   bg: "#000000",
