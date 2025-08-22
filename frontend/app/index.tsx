@@ -214,6 +214,7 @@ export default function Index() {
       <Text style={styles.subtitle}>Push the echoes. Survive the wave.</Text>
 
       <View style={styles.buttons}>
+        {/* Primary Play button (full width) */}
         <Pressable
           accessibilityRole="button"
           onPress={onPlayPress}
@@ -223,21 +224,54 @@ export default function Index() {
             {
               borderColor: COLORS.neonBlue,
               transform: [{ scale: pressed ? 0.98 : 1 }],
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
             },
           ]}
         >
+          <Image source={require("../assets/icons/play.png")} style={styles.icon} resizeMode="contain" />
           <Text style={styles.buttonText}>Play</Text>
         </Pressable>
 
-        <Pressable accessibilityRole="button" onPress={() => router.push("/customize")}
-          style={({ pressed }) => [styles.button, { borderColor: COLORS.neonPurple, transform: [{ scale: pressed ? 0.98 : 1 }] }]}>
-          <Text style={styles.buttonText}>Customization</Text>
-        </Pressable>
+        {/* Secondary buttons side-by-side */}
+        <View style={styles.row}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push("/customize")}
+            style={({ pressed }) => [
+              styles.smallButton,
+              {
+                borderColor: COLORS.neonPurple,
+                transform: [{ scale: pressed ? 0.98 : 1 }],
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+              },
+            ]}
+          >
+            <Image source={require("../assets/icons/edit.png")} style={styles.icon} resizeMode="contain" />
+            <Text style={styles.buttonText}>Customization</Text>
+          </Pressable>
 
-        <Pressable accessibilityRole="button" onPress={() => router.push("/settings")}
-          style={({ pressed }) => [styles.button, { borderColor: COLORS.neonPink, transform: [{ scale: pressed ? 0.98 : 1 }] }]}>
-          <Text style={styles.buttonText}>Settings</Text>
-        </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push("/settings")}
+            style={({ pressed }) => [
+              styles.smallButton,
+              {
+                borderColor: COLORS.neonPink,
+                transform: [{ scale: pressed ? 0.98 : 1 }],
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+              },
+            ]}
+          >
+            <Image source={require("../assets/icons/settings.png")} style={styles.icon} resizeMode="contain" />
+            <Text style={styles.buttonText}>Settings</Text>
+          </Pressable>
+        </View>
       </View>
 
       <Text style={styles.footer}>Tap anywhere to preview ripples • {Platform.OS.toUpperCase()}</Text>
