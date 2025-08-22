@@ -333,6 +333,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "700",
   },
+  icon: {
+    width: 24,
+    height: 24,
+    marginRight: 8,
+    tintColor: COLORS.white,
+  },
   footer: {
     color: "#888",
     marginBottom: 24,
