@@ -236,7 +236,7 @@ export default function Game() {
     const tough = Math.random() < toughProb;
     const hp = tough ? (Math.random() < 0.5 ? 2 : 3) : 1;
 
-    obstacles.current.push({ id: nextId.current++, angle, radius, size, shape, speed: BASE_OBSTACLE_SPEED * speedMultiplier.current, hp, maxHp: hp, tough });
+    obstacles.current.push({ id: nextId.current++, angle, radius, size, shape, speed: BASE_OBSTACLE_SPEED * speedMultiplier.current, hp, maxHp: hp, tough, hitBy: new Set<number>() });
   };
 
   const updateLoop = useCallback((t: number) => {
