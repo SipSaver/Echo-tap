@@ -320,6 +320,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(255,255,255,0.03)",
   },
+  smallButton: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 14,
+    borderWidth: 2,
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.03)",
+  },
   buttonText: {
     color: COLORS.white,
     fontSize: 18,
