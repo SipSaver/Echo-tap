@@ -118,6 +118,7 @@ export default function Game() {
   const spawnInterval = useRef(BASE_SPAWN_INTERVAL);
   const speedMultiplier = useRef(1);
   const rafId = useRef<number | null>(null);
+  const powerCooldownRef = useRef(0); // ms until next yellow 3-HP spawn allowed (7s cadence)
 
   const loadBest = useCallback(async () => {
     try {
