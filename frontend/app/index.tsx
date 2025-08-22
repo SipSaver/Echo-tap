@@ -5,7 +5,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, G, Rect } from "react-native-svg";
-import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming, interpolate, interpolateColor, Easing } from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming, interpolateColor, Easing } from "react-native-reanimated";
 
 const COLORS = {
   bg: "#000000",
@@ -129,38 +129,31 @@ export default function Index() {
     }, [loop])
   );
 
-  // Title animation: sequential per-letter scale + fade, loops
-  const title = "Echo Tap";
-  const pulse = useSharedValue(0);
+  // Title: Color Cycling + Breathing Glow (no textShadow props on native)
+  const colorPhase = useSharedValue(0);
+  const breathe = useSharedValue(0);
   useEffect(() => {
-    pulse.value = withRepeat(
-      withTiming(1, { duration: 12000, easing: Easing.linear }),
-      -1,
-      false
-    );
-  }, [pulse]);
+    colorPhase.value = withRepeat(withTiming(1, { duration: 12000, easing: Easing.linear }), -1, false);
+    breathe.value = withRepeat(withTiming(1, { duration: 2400, easing: Easing.inOut(Easing.sin) }), -1, true);
+  }, [colorPhase, breathe]);
 
-  const Letter = ({ ch, index }: { ch: string; index: number }) => {
-    // phase offset per letter
-    const anim = useAnimatedStyle(() => {
-      const phase = (pulse.value - index * 0.08 + 1) % 1;
-      const scale = interpolate(phase, [0, 0.25, 1], [0.6, 1, 1]);
-      const opacity = interpolate(phase, [0, 0.15, 0.3], [0, 0.6, 1]);
-      return { transform: [{ scale }], opacity } as any;
-    });
+  const colorStyle = useAnimatedStyle(() => {
+    const c = interpolateColor(colorPhase.value, [0, 0.33, 0.66, 1], [COLORS.neonBlue, COLORS.neonPink, COLORS.neonPurple, COLORS.neonBlue]);
+    return { color: c } as any;
+  });
 
-    // Matching color cycle per-letter
-    const colorAnim = useAnimatedStyle(() => {
-      const c = interpolateColor(pulse.value, [0, 0.5, 1], [COLORS.neonBlue, COLORS.neonPink, COLORS.neonPurple]);
-      // No textShadow here to avoid warnings; pure color + scale/opacity
-      return { color: c } as any;
-    });
-
-    if (ch === " ") return <View style={{ width: 10 }} />;
-    return (
-      <Animated.Text style={[styles.titleChar, colorAnim, anim]}>{ch}</Animated.Text>
-    );
-  };
+  // Glow layer behind (native: scale/opacity pulse; web: CSS textShadow)
+  const glowStyle = useAnimatedStyle(() => {
+    const c = interpolateColor(colorPhase.value, [0, 0.33, 0.66, 1], [COLORS.neonBlue, COLORS.neonPink, COLORS.neonPurple, COLORS.neonBlue]);
+    const intensity = 0.4 + 0.4 * breathe.value; // 0.4..0.8
+    if (Platform.OS === "web") {
+      const radius = 8 + 12 * breathe.value; // 8..20px
+      return { color: c, opacity: 1, textShadow: `0px 0px ${radius}px ${c}` } as any;
+    }
+    // Native: duplicate text behind, scaled & translucent as glow
+    const scale = 1 + 0.04 * breathe.value;
+    return { color: c, opacity: intensity, transform: [{ scale }] } as any;
+  });
 
   // Play button ripple
   const playBtnLayout = useRef<{ x: number; y: number; w: number; h: number } | null>(null);
@@ -209,11 +202,12 @@ export default function Index() {
         </Svg>
       </Pressable>
 
-      {/* Animated Title composed of letters */}
-      <View style={styles.titleRow}>
-        {Array.from(title).map((ch, i) => (
-          <Letter key={`${ch}-${i}`} ch={ch} index={i} />
-        ))}
+      {/* Animated Title */}
+      <View style={styles.titleWrap}>
+        {/* Glow layer behind (positioned absolutely) */}
+        <Animated.Text pointerEvents="none" style={[styles.title, styles.titleGlow, glowStyle]}>Echo Tap</Animated.Text>
+        {/* Main colored text */}
+        <Animated.Text style={[styles.title, colorStyle]}>Echo Tap</Animated.Text>
       </View>
 
       <Text style={styles.subtitle}>Push the echoes. Survive the wave.</Text>
@@ -257,16 +251,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  titleRow: {
+  titleWrap: {
     marginTop: 48,
-    flexDirection: "row",
-    alignItems: "flex-end",
+    alignItems: "center",
     justifyContent: "center",
   },
-  titleChar: {
+  title: {
     fontSize: 48,
     fontWeight: "800",
-    marginHorizontal: 1,
+  },
+  titleGlow: {
+    position: "absolute",
   },
   subtitle: {
     color: COLORS.neonPurple,
