@@ -107,6 +107,8 @@ export default function Game() {
   const [energy, setEnergy] = useState(ENERGY_MAX);
   const energyRef = useRef(ENERGY_MAX);
   const cooldownRef = useRef(0); // ms remaining
+  const next2HpCooldownRef = useRef(0); // ms until next 2-HP enemy allowed
+  const next3HpCooldownRef = useRef(0); // ms until next 3-HP enemy allowed
 
   const lastTime = useRef<number | null>(null);
   const spawnTimer = useRef(0);
