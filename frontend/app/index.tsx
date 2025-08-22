@@ -5,7 +5,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, G, Rect } from "react-native-svg";
-import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming, interpolateColor } from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming, interpolate, interpolateColor } from "react-native-reanimated";
 
 const COLORS = {
   bg: "#000000",
@@ -35,19 +35,6 @@ export default function Index() {
   const center = useMemo(() => ({ x: size.w / 2, y: size.h / 2 }), [size]);
   const maxR = useMemo(() => Math.hypot(center.x, center.y), [center]);
 
-  // Title color pulse
-  const t = useSharedValue(0);
-  useEffect(() => {
-    t.value = withRepeat(withTiming(1, { duration: 4000 }), -1, true);
-  }, [t]);
-  const titleAnim = useAnimatedStyle(() => {
-    const c = interpolateColor(t.value, [0, 0.5, 1], [COLORS.neonBlue, COLORS.neonPink, COLORS.neonPurple]);
-    if (Platform.OS === "web") {
-      return { color: c, textShadow: `0px 0px 20px ${c}` } as any;
-    }
-    return { color: c, textShadowColor: c } as any;
-  });
-
   // Background particles and ripples
   const raf = useRef<number | null>(null);
   const particles = useRef<Particle[]>([]);
@@ -58,70 +45,77 @@ export default function Index() {
   const centerRippleTimer = useRef(0);
   const [, setTick] = useState(0);
 
-  const addRipple = useCallback((x: number, y: number, small = false) => {
-    ripples.current.push({ id: nid.current++, x, y, r: 0, maxR: small ? 120 : Math.max(size.w, size.h), alpha: small ? 0.5 : 0.25, grow: small ? 380 : 240 });
-    if (ripples.current.length > 8) ripples.current.shift();
-  }, [size.w, size.h]);
+  const addRipple = useCallback(
+    (x: number, y: number, small = false) => {
+      ripples.current.push({ id: nid.current++, x, y, r: 0, maxR: small ? 120 : Math.max(size.w, size.h), alpha: small ? 0.5 : 0.25, grow: small ? 420 : 280 });
+      if (ripples.current.length > 10) ripples.current.shift();
+    },
+    [size.w, size.h]
+  );
 
   const ensureParticles = useCallback(() => {
-    if (particles.current.length >= 18) return;
-    const need = 18 - particles.current.length;
+    const CAP = 24; // increased density
+    if (particles.current.length >= CAP) return;
+    const need = CAP - particles.current.length;
     for (let i = 0; i < need; i++) {
       const angle = Math.random() * Math.PI * 2;
       const radius = maxR + 60 + Math.random() * 80;
       const sizePx = 4 + Math.random() * 8;
       const shape = Math.random() > 0.5 ? "circle" : "square";
       const color = Math.random() > 0.5 ? COLORS.neonBlue : COLORS.neonPurple;
-      const speed = 12 + Math.random() * 16; // very slow background drift
+      const speed = 24 + Math.random() * 22; // faster background drift
       const opacity = 0.15 + Math.random() * 0.1;
       particles.current.push({ id: nid.current++, angle, radius, size: sizePx, shape, color, speed, opacity });
     }
   }, [maxR]);
 
-  const loop = useCallback((ts: number) => {
-    raf.current = requestAnimationFrame(loop);
-    if (last.current == null) last.current = ts;
-    const dtMs = Math.min(64, ts - last.current);
-    const dt = dtMs / 1000;
-    last.current = ts;
+  const loop = useCallback(
+    (ts: number) => {
+      raf.current = requestAnimationFrame(loop);
+      if (last.current == null) last.current = ts;
+      const dtMs = Math.min(64, ts - last.current);
+      const dt = dtMs / 1000;
+      last.current = ts;
 
-    // periodic center ripple
-    centerRippleTimer.current += dt;
-    if (centerRippleTimer.current >= 2.2) {
-      centerRippleTimer.current = 0;
-      addRipple(center.x, center.y, false);
-    }
-
-    // update ripples
-    ripples.current.forEach(r => {
-      r.r += r.grow * dt;
-      r.alpha = Math.max(0, r.alpha - dt * 0.25);
-    });
-    ripples.current = ripples.current.filter(r => r.r < r.maxR && r.alpha > 0.02);
-
-    // update particles
-    ensureParticles();
-    particles.current.forEach(p => {
-      p.radius -= p.speed * dt;
-      if (p.radius < 20) {
-        // respawn outward
-        p.angle = Math.random() * Math.PI * 2;
-        p.radius = maxR + 60 + Math.random() * 80;
-        p.size = 4 + Math.random() * 8;
-        p.shape = Math.random() > 0.5 ? "circle" : "square";
-        p.color = Math.random() > 0.5 ? COLORS.neonBlue : COLORS.neonPurple;
-        p.speed = 12 + Math.random() * 16;
-        p.opacity = 0.15 + Math.random() * 0.1;
+      // periodic center ripple
+      centerRippleTimer.current += dt;
+      if (centerRippleTimer.current >= 2.2) {
+        centerRippleTimer.current = 0;
+        addRipple(center.x, center.y, false);
       }
-    });
 
-    // throttle re-render ~30fps to update SVG
-    drawAccum.current += dtMs;
-    if (drawAccum.current >= 33) {
-      drawAccum.current = 0;
-      setTick((v) => (v + 1) % 1000000);
-    }
-  }, [addRipple, center.x, center.y, ensureParticles, maxR]);
+      // update ripples
+      ripples.current.forEach((r) => {
+        r.r += r.grow * dt;
+        r.alpha = Math.max(0, r.alpha - dt * 0.25);
+      });
+      ripples.current = ripples.current.filter((r) => r.r < r.maxR && r.alpha > 0.02);
+
+      // update particles
+      ensureParticles();
+      particles.current.forEach((p) => {
+        p.radius -= p.speed * dt;
+        if (p.radius < 20) {
+          // respawn outward
+          p.angle = Math.random() * Math.PI * 2;
+          p.radius = maxR + 60 + Math.random() * 80;
+          p.size = 4 + Math.random() * 8;
+          p.shape = Math.random() > 0.5 ? "circle" : "square";
+          p.color = Math.random() > 0.5 ? COLORS.neonBlue : COLORS.neonPurple;
+          p.speed = 24 + Math.random() * 22; // keep fast on respawn
+          p.opacity = 0.15 + Math.random() * 0.1;
+        }
+      });
+
+      // throttle re-render ~30fps to update SVG
+      drawAccum.current += dtMs;
+      if (drawAccum.current >= 33) {
+        drawAccum.current = 0;
+        setTick((v) => (v + 1) % 1000000);
+      }
+    },
+    [addRipple, center.x, center.y, ensureParticles, maxR]
+  );
 
   // Run the animation loop only when this screen is focused
   useFocusEffect(
@@ -135,6 +129,35 @@ export default function Index() {
     }, [loop])
   );
 
+  // Title animation: sequential per-letter scale + fade, loops
+  const title = "Echo Tap";
+  const pulse = useSharedValue(0);
+  useEffect(() => {
+    pulse.value = withRepeat(withTiming(1, { duration: 2400 }), -1, false);
+  }, [pulse]);
+
+  const Letter = ({ ch, index }: { ch: string; index: number }) => {
+    // phase offset per letter
+    const anim = useAnimatedStyle(() => {
+      const phase = (pulse.value + index * 0.08) % 1;
+      const scale = interpolate(phase, [0, 0.25, 1], [0.6, 1, 1]);
+      const opacity = interpolate(phase, [0, 0.15, 0.3], [0, 0.6, 1]);
+      return { transform: [{ scale }], opacity } as any;
+    });
+
+    // Matching color cycle per-letter
+    const colorAnim = useAnimatedStyle(() => {
+      const c = interpolateColor(pulse.value, [0, 0.5, 1], [COLORS.neonBlue, COLORS.neonPink, COLORS.neonPurple]);
+      // No textShadow here to avoid warnings; pure color + scale/opacity
+      return { color: c } as any;
+    });
+
+    if (ch === " ") return <View style={{ width: 10 }} />;
+    return (
+      <Animated.Text style={[styles.titleChar, colorAnim, anim]}>{ch}</Animated.Text>
+    );
+  };
+
   // Play button ripple
   const playBtnLayout = useRef<{ x: number; y: number; w: number; h: number } | null>(null);
   const onPlayPress = useCallback(() => {
@@ -147,17 +170,18 @@ export default function Index() {
     }
   }, [router, addRipple]);
 
-  // Title bounce colors handled by titleAnim style
-
   // Background tap reaction (small ripple)
-  const onBgPress = useCallback((evt: any) => {
-    if (!evt?.nativeEvent) return;
-    const { locationX, locationY } = evt.nativeEvent;
-    addRipple(locationX, locationY, true);
-  }, [addRipple]);
+  const onBgPress = useCallback(
+    (evt: any) => {
+      if (!evt?.nativeEvent) return;
+      const { locationX, locationY } = evt.nativeEvent;
+      addRipple(locationX, locationY, true);
+    },
+    [addRipple]
+  );
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}>
+    <View style={[styles.container, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]} onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
       <StatusBar style="light" />
 
       {/* Background Animated Canvas */}
@@ -165,13 +189,13 @@ export default function Index() {
         <Svg width={size.w} height={size.h}>
           {/* expanding ripples */}
           <G>
-            {ripples.current.map(r => (
+            {ripples.current.map((r) => (
               <Circle key={r.id} cx={r.x} cy={r.y} r={r.r} stroke={COLORS.neonBlue} strokeOpacity={r.alpha} strokeWidth={2} fill="none" />
             ))}
           </G>
           {/* subtle floating particles */}
           <G opacity={0.9}>
-            {particles.current.map(p => {
+            {particles.current.map((p) => {
               const x = center.x + Math.cos(p.angle) * p.radius;
               const y = center.y + Math.sin(p.angle) * p.radius;
               if (p.shape === "circle") return <Circle key={p.id} cx={x} cy={y} r={p.size} fill={p.color} opacity={p.opacity} />;
@@ -181,7 +205,13 @@ export default function Index() {
         </Svg>
       </Pressable>
 
-      <Animated.Text style={[styles.title, titleAnim]}>Echo Tap</Animated.Text>
+      {/* Animated Title composed of letters */}
+      <View style={styles.titleRow}>
+        {Array.from(title).map((ch, i) => (
+          <Letter key={`${ch}-${i}`} ch={ch} index={i} />
+        ))}
+      </View>
+
       <Text style={styles.subtitle}>Push the echoes. Survive the wave.</Text>
 
       <View style={styles.buttons}>
@@ -194,9 +224,6 @@ export default function Index() {
             {
               borderColor: COLORS.neonBlue,
               transform: [{ scale: pressed ? 0.98 : 1 }],
-              shadowColor: pressed ? COLORS.neonBlue : "transparent",
-              shadowOpacity: pressed ? 0.6 : 0,
-              shadowRadius: pressed ? 12 : 0,
             },
           ]}
         >
@@ -226,13 +253,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  title: {
+  titleRow: {
     marginTop: 48,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "center",
+  },
+  titleChar: {
     fontSize: 48,
     fontWeight: "800",
-    textShadowColor: COLORS.neonBlue,
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 20,
+    marginHorizontal: 1,
   },
   subtitle: {
     color: COLORS.neonPurple,
