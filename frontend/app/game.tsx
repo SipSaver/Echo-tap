@@ -41,7 +41,8 @@ const COOLDOWN_FULL_MS = 320;
 // Pushback tuning (tough get extra pushback)
 const PUSHBACK_FULL = 320; // px/s base
 const PUSHBACK_QUAD = 260; // px/s base
-const TOUGH_PUSH_MULT = 1.35;
+const TOUGH_PUSH_MULT = 1.25; // base for HP>=2
+const PUSH_MULT_HP3 = 1.15; // extra for 3-HP specifically (total ~1.44x)
 
 // HP bar render
 const HP_BAR_W = 22;
