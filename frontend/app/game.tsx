@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Pressable, Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, Rect, G } from "react-native-svg";
 import * as Haptics from "expo-haptics";
+import { useRouter } from "expo-router";
 
 const COLORS = {
   bg: "#000000",
@@ -38,24 +39,38 @@ interface Obstacle {
 
 export default function Game() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const [size, setSize] = useState({ w: Dimensions.get("window").width, h: Dimensions.get("window").height });
 
   const center = useMemo(() => ({ x: size.w / 2, y: size.h / 2 }), [size]);
   const maxRadius = useMemo(() => Math.max(center.x, center.y) + 60, [center]);
+
+  const centerRef = useRef(center);
+  const maxRadiusRef = useRef(maxRadius);
+  useEffect(() => {
+    centerRef.current = center;
+    maxRadiusRef.current = maxRadius;
+  }, [center, maxRadius]);
 
   const ripples = useRef<Ripple[]>([]);
   const obstacles = useRef<Obstacle[]>([]);
   const nextId = useRef(1);
 
   const [score, setScore] = useState(0);
+  const scoreRef = useRef(0);
   const [best, setBest] = useState<number>(0);
   const [paused, setPaused] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const pausedRef = useRef(false);
+  const gameOverRef = useRef(false);
+  useEffect(() => { pausedRef.current = paused; }, [paused]);
+  useEffect(() => { gameOverRef.current = gameOver; }, [gameOver]);
 
   const lastTime = useRef<number | null>(null);
   const spawnTimer = useRef(0);
   const spawnInterval = useRef(BASE_SPAWN_INTERVAL);
   const speedMultiplier = useRef(1);
+  const rafId = useRef<number | null>(null);
 
   const loadBest = useCallback(async () => {
     try {
@@ -80,6 +95,7 @@ export default function Game() {
     ripples.current = [];
     obstacles.current = [];
     nextId.current = 1;
+    scoreRef.current = 0;
     setScore(0);
     lastTime.current = null;
     spawnTimer.current = 0;
@@ -90,25 +106,29 @@ export default function Game() {
   }, []);
 
   const onTap = useCallback(() => {
-    if (paused || gameOver) return;
+    if (pausedRef.current || gameOverRef.current) return;
     ripples.current.push({ id: nextId.current++, radius: CORE_RADIUS });
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  }, [paused, gameOver]);
+  }, []);
 
-  const spawnObstacle = useCallback(() => {
+  const spawnObstacle = () => {
     const angle = Math.random() * Math.PI * 2;
-    const radius = maxRadius;
+    const radius = maxRadiusRef.current;
     const size = 10 + Math.random() * 12;
     const shape: Shape = Math.random() > 0.5 ? "circle" : "square";
     obstacles.current.push({ id: nextId.current++, angle, radius, size, shape, speed: BASE_OBSTACLE_SPEED * speedMultiplier.current });
-  }, [maxRadius]);
+  };
 
   const updateLoop = useCallback((t: number) => {
-    if (paused || gameOver) {
+    // Single, stable RAF loop. Always schedule next frame via ref.
+    rafId.current = requestAnimationFrame(updateLoop);
+
+    if (pausedRef.current || gameOverRef.current) {
+      // Freeze delta to avoid big dt spikes on resume
       lastTime.current = t;
-      requestAnimationFrame(updateLoop);
       return;
     }
+
     if (lastTime.current == null) lastTime.current = t;
     const dt = Math.min(64, t - lastTime.current) / 1000; // seconds, clamp
     lastTime.current = t;
@@ -118,7 +138,8 @@ export default function Game() {
     speedMultiplier.current = Math.min(2.5, speedMultiplier.current * Math.pow(1.003, dt * 60));
 
     // Update score
-    setScore((s) => s + dt);
+    scoreRef.current += dt;
+    setScore(scoreRef.current);
 
     // Update ripples
     ripples.current.forEach((r) => {
@@ -152,28 +173,25 @@ export default function Game() {
       if (o.radius <= CORE_RADIUS + o.size * 0.5) hitCore = true;
     });
 
-    obstacles.current = obstacles.current.filter((o) => o.radius > 0 && o.radius < maxRadius + 40);
+    obstacles.current = obstacles.current.filter((o) => o.radius > 0 && o.radius < maxRadiusRef.current + 40);
 
     if (hitCore) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       setGameOver(true);
       setPaused(true);
-      setScore((s) => {
-        const final = Math.floor(s);
-        if (final > best) {
-          setBest(final);
-          saveBest(final);
-        }
-        return s;
-      });
+      const final = Math.floor(scoreRef.current);
+      if (final > best) {
+        setBest(final);
+        saveBest(final);
+      }
     }
-
-    requestAnimationFrame(updateLoop);
-  }, [best, gameOver, paused, saveBest, spawnObstacle, maxRadius]);
+  }, [best, saveBest]);
 
   useEffect(() => {
-    const raf = requestAnimationFrame(updateLoop);
-    return () => cancelAnimationFrame(raf);
+    rafId.current = requestAnimationFrame(updateLoop);
+    return () => {
+      if (rafId.current != null) cancelAnimationFrame(rafId.current);
+    };
   }, [updateLoop]);
 
   const finalScore = Math.floor(score);
@@ -226,6 +244,9 @@ export default function Game() {
             <Pressable style={[styles.overlayBtn, { borderColor: COLORS.neonPink }]} onPress={reset}>
               <Text style={styles.overlayBtnText}>Restart</Text>
             </Pressable>
+            <Pressable style={[styles.overlayBtn, { borderColor: "#666" }]} onPress={() => router.replace("/") }>
+              <Text style={styles.overlayBtnText}>Main Menu</Text>
+            </Pressable>
           </View>
         </View>
       )}
@@ -237,6 +258,9 @@ export default function Game() {
           <View style={styles.overlayButtons}>
             <Pressable style={[styles.overlayBtn, { borderColor: COLORS.neonBlue }]} onPress={reset}>
               <Text style={styles.overlayBtnText}>Retry</Text>
+            </Pressable>
+            <Pressable style={[styles.overlayBtn, { borderColor: "#666" }]} onPress={() => router.replace("/") }>
+              <Text style={styles.overlayBtnText}>Main Menu</Text>
             </Pressable>
           </View>
         </View>
