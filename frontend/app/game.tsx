@@ -250,6 +250,8 @@ export default function Game() {
     const dt = dtMs / 1000;
 
     cooldownRef.current = Math.max(0, cooldownRef.current - dtMs);
+    next2HpCooldownRef.current = Math.max(0, next2HpCooldownRef.current - dtMs);
+    next3HpCooldownRef.current = Math.max(0, next3HpCooldownRef.current - dtMs);
 
     if (pausedRef.current || gameOverRef.current) {
       lastTime.current = t;
