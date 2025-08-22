@@ -332,13 +332,16 @@ export default function Game() {
           const active = r.type === "full" || (r.type === "quarter" && r.quadrant === qNow);
           if (active) {
             let pushBase = r.type === "full" ? PUSHBACK_FULL : PUSHBACK_QUAD;
-            if (o.tough) pushBase *= TOUGH_PUSH_MULT; // tougher = heavier knockback
+            if (o.tough) pushBase *= (o.maxHp === 3 ? TOUGH_PUSH_MULT * PUSH_MULT_HP3 : TOUGH_PUSH_MULT);
             const push = pushBase * strength * dt;
             o.radius += push;
             if (!damagedThisFrame && !(o as any).hitBy.has(r.id)) {
               o.hp -= 1;
               (o as any).hitBy.add(r.id);
               damagedThisFrame = true;
+              // Apply brief slow after being hit
+              (o as any)._slowTimer = 0.25; // seconds
+              (o as any)._origSpeed = (o as any)._origSpeed || o.speed;
             }
           }
         }
