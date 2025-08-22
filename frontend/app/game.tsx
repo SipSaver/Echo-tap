@@ -309,8 +309,13 @@ export default function Game() {
     const c = centerRef.current;
 
     obstacles.current.forEach((o) => {
-      // Inward movement
-      o.radius -= o.speed * dt;
+      // Inward movement with brief slow after hit
+      const slow = (o as any)._slowTimer || 0;
+      if (slow > 0) {
+        (o as any)._slowTimer = Math.max(0, slow - dt);
+      }
+      const speedNow = o.speed * ((o as any)._slowTimer > 0 ? 0.55 : 1);
+      o.radius -= speedNow * dt;
 
       // Ensure hitBy set exists (handles old obstacles post-HMR)
       if (!(o as any).hitBy) {
