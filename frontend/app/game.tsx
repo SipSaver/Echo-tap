@@ -72,6 +72,7 @@ interface Obstacle {
   hp: number; // current
   maxHp: number; // max for bar
   tough: boolean;
+  hitBy: Set<number>; // ripple ids that have already dealt damage
 }
 
 export default function Game() {
