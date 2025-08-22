@@ -198,6 +198,18 @@ export default function Game() {
     }
   };
 
+  // Keep spawns away from quadrant borders to avoid ambiguity
+  const ANGLE_MARGIN_DEG = 6; // a "couple" of degrees
+  const ANGLE_MARGIN = (ANGLE_MARGIN_DEG * Math.PI) / 180;
+  const randomAngleWithin = (start: number, end: number, margin: number = ANGLE_MARGIN) => {
+    const width = end - start;
+    const innerStart = start + margin;
+    const innerEnd = end - margin;
+    if (innerEnd <= innerStart) return start + width / 2; // fallback safety
+    return innerStart + Math.random() * (innerEnd - innerStart);
+  };
+
+
   const arcStrokePath = (cx: number, cy: number, r: number, start: number, end: number) => {
     const x0 = cx + r * Math.cos(start);
     const y0 = cy + r * Math.sin(start);
