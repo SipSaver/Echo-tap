@@ -445,7 +445,7 @@ export default function Game() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]} onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
       {/* HUD */}
-      <View style={styles.hud}>
+      <View style={[styles.hud, { top: insets.top + 10 }]}>
         <Text style={styles.score}>Score: {finalScore}</Text>
         <View style={styles.energyWrap}>
           <Text style={styles.energyLabel}>Energy</Text>
