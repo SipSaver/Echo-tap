@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, StyleSheet, Pressable, Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Circle, Rect, G } from "react-native-svg";
+import Svg, { Circle, Rect, G, Path } from "react-native-svg";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 
