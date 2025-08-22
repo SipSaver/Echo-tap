@@ -21,7 +21,7 @@ const COLORS = {
 };
 
 const CORE_RADIUS = 16; // center orb radius px
-const MAX_RIPPLE_RADIUS = 600; // max ripple radius
+const MAX_RIPPLE_RADIUS = 900; // max ripple radius (zoomed-out field)
 const RIPPLE_SPEED = 480; // px per second (a bit faster)
 const RIPPLE_THICKNESS = 22; // collision thickness window
 
