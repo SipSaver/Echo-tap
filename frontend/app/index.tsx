@@ -61,8 +61,8 @@ export default function Index() {
   }, [size.w, size.h]);
 
   const ensureParticles = useCallback(() => {
-    if (particles.current.length >= 14) return;
-    const need = 14 - particles.current.length;
+    if (particles.current.length >= 18) return;
+    const need = 18 - particles.current.length;
     for (let i = 0; i < need; i++) {
       const angle = Math.random() * Math.PI * 2;
       const radius = maxR + 60 + Math.random() * 80;
