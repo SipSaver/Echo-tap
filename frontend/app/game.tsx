@@ -31,7 +31,7 @@ const DIFFICULTY_RAMP = 0.995; // per second multiplier for interval and 1.003 f
 
 // Energy system
 const ENERGY_MAX = 100;
-const ENERGY_REGEN_PER_SEC = 5; // %/sec
+const ENERGY_REGEN_PER_SEC = 6.5; // %/sec (tuned)
 const COST_QUAD = 8; // % (was 5)
 const COST_FULL = 40; // % (was 30)
 const CENTER_TAP_RADIUS = 56; // px around core that triggers full wave
