@@ -357,7 +357,7 @@ export default function Game() {
     });
 
     // Remove destroyed or out-of-bounds
-    obstacles.current = obstacles.current.filter((o) => o.radius > 0 && o.radius < maxRadiusRef.current + 60 && o.hp > 0);
+    obstacles.current = obstacles.current.filter((o) => o.radius > 0 && o.radius < maxRadiusRef.current + 200 && o.hp > 0);
 
     if (hitCore) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
