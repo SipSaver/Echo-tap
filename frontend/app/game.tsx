@@ -75,6 +75,7 @@ interface Obstacle {
   maxHp: number; // max for bar
   tough: boolean;
   hitBy: Set<number>; // ripple ids that have already dealt damage
+  isPower?: boolean; // yellow 3-HP energy orb
 }
 
 export default function Game() {
