@@ -111,12 +111,17 @@ export default function Index() {
     });
   }, [addRipple, center.x, center.y, ensureParticles, maxR]);
 
-  useEffect(() => {
-    raf.current = requestAnimationFrame(loop);
-    return () => {
-      if (raf.current) cancelAnimationFrame(raf.current);
-    };
-  }, [loop]);
+  // Run the animation loop only when this screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      raf.current = requestAnimationFrame(loop);
+      return () => {
+        if (raf.current) cancelAnimationFrame(raf.current);
+        raf.current = null;
+        last.current = null; // reset timing to avoid huge dt on resume
+      };
+    }, [loop])
+  );
 
   // Play button ripple
   const playBtnLayout = useRef<{ x: number; y: number; w: number; h: number } | null>(null);
