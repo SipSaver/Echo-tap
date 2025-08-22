@@ -42,7 +42,7 @@ export default function Index() {
   }, [t]);
   const titleAnim = useAnimatedStyle(() => {
     const c = interpolateColor(t.value, [0, 0.5, 1], [COLORS.neonBlue, COLORS.neonPink, COLORS.neonPurple]);
-    return { color: c } as any;
+    return { color: c, textShadowColor: c } as any;
   });
 
   // Background particles and ripples
