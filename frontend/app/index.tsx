@@ -337,7 +337,6 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     marginRight: 8,
-    tintColor: COLORS.white,
   },
   footer: {
     color: "#888",
