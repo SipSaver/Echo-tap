@@ -133,7 +133,11 @@ export default function Index() {
   const title = "Echo Tap";
   const pulse = useSharedValue(0);
   useEffect(() => {
-    pulse.value = withRepeat(withTiming(1, { duration: 2400 }), -1, false);
+    pulse.value = withRepeat(
+      withTiming(1, { duration: 12000, easing: Easing.linear }),
+      -1,
+      false
+    );
   }, [pulse]);
 
   const Letter = ({ ch, index }: { ch: string; index: number }) => {
