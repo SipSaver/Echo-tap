@@ -242,7 +242,10 @@ export default function Game() {
 
     // Enforce fixed cadence windows instead of pure probability
     // 3-HP: only eligible every 4-5s; 2-HP: only eligible every 2-3s
+    // Additionally, every 7s spawn a yellow 3-HP power orb (handled separately below)
     let hp = 1;
+    let isPower = false;
+
     if (canSpawn3 && Math.random() < 0.8) { // when window is open, likely spawn a 3-HP
       hp = 3;
       next3HpCooldownRef.current = 4000 + Math.random() * 1000; // 4-5s
@@ -256,7 +259,7 @@ export default function Game() {
     // Shape/color rules by HP
     const shape: Shape = hp === 2 ? "square" : "circle"; // 3-HP circle, 2-HP square, 1-HP retains circle
 
-    obstacles.current.push({ id: nextId.current++, angle, radius, size, shape, speed: BASE_OBSTACLE_SPEED * speedMultiplier.current, hp, maxHp: hp, tough, hitBy: new Set<number>() });
+    obstacles.current.push({ id: nextId.current++, angle, radius, size, shape, speed: BASE_OBSTACLE_SPEED * speedMultiplier.current, hp, maxHp: hp, tough, hitBy: new Set<number>(), isPower });
   };
 
   const updateLoop = useCallback((t: number) => {
