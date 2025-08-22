@@ -345,7 +345,7 @@ export default function Game() {
               (o as any).hitBy.add(r.id);
               damagedThisFrame = true;
               // Apply brief slow after being hit
-              (o as any)._slowTimer = 0.25; // seconds
+              (o as any)._slowTimer = 0.5; // seconds
               (o as any)._origSpeed = (o as any)._origSpeed || o.speed;
             }
           }
