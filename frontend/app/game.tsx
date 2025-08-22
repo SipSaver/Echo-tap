@@ -229,7 +229,8 @@ export default function Game() {
     const quadrant: Quadrant = r < 0.25 ? "TL" : r < 0.5 ? "TR" : r < 0.75 ? "BL" : "BR";
     const { start, end } = getAnglesForQuadrant(quadrant);
     const angle = start + Math.random() * (end - start);
-    const radius = maxRadiusRef.current;
+    // Spawn a bit further out to increase reaction time
+    const radius = maxRadiusRef.current + 80;
     const size = 10 + Math.random() * 12;
     const shape: Shape = Math.random() > 0.5 ? "circle" : "square";
 
