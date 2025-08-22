@@ -407,7 +407,7 @@ export default function Game() {
               } else {
                 elems.push(<Rect key={`s-${o.id}`} x={x - o.size} y={y - o.size} width={o.size * 2} height={o.size * 2} fill={color} />);
               }
-              if (o.tough) {
+              if (o.tough && o.hp < o.maxHp) {
                 const ratio = Math.max(0, o.hp / o.maxHp);
                 const barX = x - HP_BAR_W / 2;
                 const barY = y - o.size - HP_BAR_OFFSET;
