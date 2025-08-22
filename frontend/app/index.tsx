@@ -111,6 +111,13 @@ export default function Index() {
         p.opacity = 0.15 + Math.random() * 0.1;
       }
     });
+
+    // throttle re-render ~30fps to update SVG
+    drawAccum.current += dtMs;
+    if (drawAccum.current >= 33) {
+      drawAccum.current = 0;
+      setTick((v) => (v + 1) % 1000000);
+    }
   }, [addRipple, center.x, center.y, ensureParticles, maxR]);
 
   // Run the animation loop only when this screen is focused
