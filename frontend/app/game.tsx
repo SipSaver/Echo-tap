@@ -475,7 +475,7 @@ export default function Game() {
             {obstacles.current.map((o) => {
               const x = center.x + Math.cos(o.angle) * o.radius;
               const y = center.y + Math.sin(o.angle) * o.radius;
-              const color = o.tough ? COLORS.neonPurple : COLORS.neonBlue;
+              const color = o.isPower ? COLORS.powerYellow : (o.tough ? COLORS.neonPurple : COLORS.neonBlue);
               const elems: any[] = [];
               if (o.shape === "circle") {
                 elems.push(<Circle key={`s-${o.id}`} cx={x} cy={y} r={o.size} fill={color} />);
