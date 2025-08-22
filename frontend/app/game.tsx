@@ -18,6 +18,7 @@ const COLORS = {
   hpLow: "#FF4D6D",
   hpMid: "#FF00FF",
   hpHigh: "#00FFFF",
+  powerYellow: "#FFD400",
 };
 
 const CORE_RADIUS = 16; // center orb radius px
