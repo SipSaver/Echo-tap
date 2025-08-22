@@ -292,12 +292,18 @@ export default function Game() {
       // Inward movement
       o.radius -= o.speed * dt;
 
+      // Ensure hitBy set exists (handles old obstacles post-HMR)
+      if (!(o as any).hitBy) {
+        (o as any).hitBy = new Set<number>();
+      }
+
       // Position for quadrant checks
       const x = c.x + Math.cos(o.angle) * o.radius;
       const y = c.y + Math.sin(o.angle) * o.radius;
       const qNow = getQuadrantFromPoint(x, y);
 
-      // Ripple interaction: damage only once per ripple id
+      let damagedThisFrame = false;
+      // Ripple interaction: damage only once per frame and once per ripple id overall
       for (let i = 0; i < rippleArr.length; i++) {
         const r = rippleArr[i];
         const radialDiff = Math.abs(o.radius - r.radius);
@@ -309,10 +315,10 @@ export default function Game() {
             if (o.tough) pushBase *= TOUGH_PUSH_MULT; // tougher = heavier knockback
             const push = pushBase * strength * dt;
             o.radius += push;
-            // Damage once per ripple id to require multiple distinct waves
-            if (!o.hitBy.has(r.id)) {
+            if (!damagedThisFrame && !(o as any).hitBy.has(r.id)) {
               o.hp -= 1;
-              o.hitBy.add(r.id);
+              (o as any).hitBy.add(r.id);
+              damagedThisFrame = true;
             }
           }
         }
