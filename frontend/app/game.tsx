@@ -345,7 +345,7 @@ export default function Game() {
         const r = Math.random();
         const quadrant: Quadrant = r < 0.25 ? "TL" : r < 0.5 ? "TR" : r < 0.75 ? "BL" : "BR";
         const { start, end } = getAnglesForQuadrant(quadrant);
-        const angle = start + Math.random() * (end - start);
+        const angle = randomAngleWithin(start, end);
         const radius = maxRadiusRef.current + 80;
         const size = 12 + Math.random() * 10;
         obstacles.current.push({
