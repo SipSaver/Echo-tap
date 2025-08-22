@@ -233,10 +233,24 @@ export default function Game() {
     const size = 10 + Math.random() * 12;
     const shape: Shape = Math.random() > 0.5 ? "circle" : "square";
 
-    // Tough probability scales with difficulty
-    const toughProb = Math.min(0.7, 0.2 + (speedMultiplier.current - 1) * 0.3);
-    const tough = Math.random() < toughProb;
-    const hp = tough ? (Math.random() < 0.5 ? 2 : 3) : 1;
+    // Decide hp tier with per-tier cooldowns
+    const canSpawn2 = next2HpCooldownRef.current <= 0;
+    const canSpawn3 = next3HpCooldownRef.current <= 0;
+
+    // Base probabilities that scale with difficulty
+    const p3 = Math.min(0.25, 0.05 + (speedMultiplier.current - 1) * 0.08); // 5% -> 25%
+    const p2 = Math.min(0.40, 0.12 + (speedMultiplier.current - 1) * 0.12); // 12% -> 40%
+
+    let hp = 1;
+    if (canSpawn3 && Math.random() < p3) {
+      hp = 3;
+      next3HpCooldownRef.current = 2000 + Math.random() * 1000; // 2-3s
+    } else if (canSpawn2 && Math.random() < p2) {
+      hp = 2;
+      next2HpCooldownRef.current = 1000 + Math.random() * 1000; // 1-2s
+    }
+
+    const tough = hp > 1;
 
     obstacles.current.push({ id: nextId.current++, angle, radius, size, shape, speed: BASE_OBSTACLE_SPEED * speedMultiplier.current, hp, maxHp: hp, tough, hitBy: new Set<number>() });
   };
