@@ -14,6 +14,10 @@ const COLORS = {
   gray: "#888888",
   energyBg: "#1a1a1a",
   energyFill: "#00E5FF",
+  hpBg: "#2a2a2a",
+  hpLow: "#FF4D6D",
+  hpMid: "#FF00FF",
+  hpHigh: "#00FFFF",
 };
 
 const CORE_RADIUS = 16; // center orb radius px
@@ -28,15 +32,21 @@ const DIFFICULTY_RAMP = 0.995; // per second multiplier for interval and 1.003 f
 // Energy system
 const ENERGY_MAX = 100;
 const ENERGY_REGEN_PER_SEC = 5; // %/sec
-const COST_QUAD = 5; // %
-const COST_FULL = 30; // %
+const COST_QUAD = 8; // % (was 5)
+const COST_FULL = 40; // % (was 30)
 const CENTER_TAP_RADIUS = 56; // px around core that triggers full wave
 const COOLDOWN_QUAD_MS = 120;
 const COOLDOWN_FULL_MS = 320;
 
-// Pushback tuning (must beat inward speed at higher diffs)
+// Pushback tuning (tough get extra pushback)
 const PUSHBACK_FULL = 320; // px/s base
 const PUSHBACK_QUAD = 260; // px/s base
+const TOUGH_PUSH_MULT = 1.35;
+
+// HP bar render
+const HP_BAR_W = 22;
+const HP_BAR_H = 3;
+const HP_BAR_OFFSET = 10;
 
 // Types
 
@@ -59,7 +69,8 @@ interface Obstacle {
   speed: number; // inward speed px/s
   size: number; // visual size
   shape: Shape;
-  hp: number; // hits required
+  hp: number; // current
+  maxHp: number; // max for bar
   tough: boolean;
 }
 
@@ -224,7 +235,7 @@ export default function Game() {
     const tough = Math.random() < toughProb;
     const hp = tough ? (Math.random() < 0.5 ? 2 : 3) : 1;
 
-    obstacles.current.push({ id: nextId.current++, angle, radius, size, shape, speed: BASE_OBSTACLE_SPEED * speedMultiplier.current, hp, tough });
+    obstacles.current.push({ id: nextId.current++, angle, radius, size, shape, speed: BASE_OBSTACLE_SPEED * speedMultiplier.current, hp, maxHp: hp, tough });
   };
 
   const updateLoop = useCallback((t: number) => {
@@ -246,7 +257,6 @@ export default function Game() {
 
     // Energy regen
     energyRef.current = Math.min(ENERGY_MAX, energyRef.current + ENERGY_REGEN_PER_SEC * dt);
-    // Avoid excessive state churn; still OK to set each frame for a smooth bar
     setEnergy(energyRef.current);
 
     // Difficulty ramp
@@ -275,7 +285,6 @@ export default function Game() {
     // Update obstacles movement and collisions
     const rippleArr = ripples.current;
     let hitCore = false;
-
     const c = centerRef.current;
 
     obstacles.current.forEach((o) => {
@@ -287,6 +296,9 @@ export default function Game() {
       const y = c.y + Math.sin(o.angle) * o.radius;
       const qNow = getQuadrantFromPoint(x, y);
 
+      // Avoid multiple HP decrements per frame for same obstacle
+      let damagedThisFrame = false;
+
       // Ripple interaction
       for (let i = 0; i < rippleArr.length; i++) {
         const r = rippleArr[i];
@@ -295,12 +307,14 @@ export default function Game() {
           const strength = 1 - radialDiff / RIPPLE_THICKNESS; // 0..1
           const active = r.type === "full" || (r.type === "quarter" && r.quadrant === qNow);
           if (active) {
-            const push = (r.type === "full" ? PUSHBACK_FULL : PUSHBACK_QUAD) * strength * dt;
+            let pushBase = r.type === "full" ? PUSHBACK_FULL : PUSHBACK_QUAD;
+            if (o.tough) pushBase *= TOUGH_PUSH_MULT; // tougher = heavier knockback
+            const push = pushBase * strength * dt;
             o.radius += push;
-            // Also damage; remove when hp depleted
-            if (i === 0 || Math.random() < 0.5) {
-              // prevent multiple decrements per frame being too strong
+            if (!damagedThisFrame) {
+              // One HP max per frame regardless of overlapping ripples
               o.hp -= 1;
+              damagedThisFrame = true;
             }
           }
         }
@@ -339,6 +353,12 @@ export default function Game() {
 
   const finalScore = Math.floor(score);
   const energyPct = Math.round(energy);
+
+  const hpColor = (ratio: number) => {
+    if (ratio < 0.34) return COLORS.hpLow;
+    if (ratio < 0.67) return COLORS.hpMid;
+    return COLORS.hpHigh;
+  };
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]} onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
@@ -381,10 +401,24 @@ export default function Game() {
               const x = center.x + Math.cos(o.angle) * o.radius;
               const y = center.y + Math.sin(o.angle) * o.radius;
               const color = o.tough ? COLORS.neonPurple : COLORS.neonBlue;
+              const elems: any[] = [];
               if (o.shape === "circle") {
-                return <Circle key={o.id} cx={x} cy={y} r={o.size} fill={color} />;
+                elems.push(<Circle key={`s-${o.id}`} cx={x} cy={y} r={o.size} fill={color} />);
+              } else {
+                elems.push(<Rect key={`s-${o.id}`} x={x - o.size} y={y - o.size} width={o.size * 2} height={o.size * 2} fill={color} />);
               }
-              return <Rect key={o.id} x={x - o.size} y={y - o.size} width={o.size * 2} height={o.size * 2} fill={color} />;
+              if (o.tough) {
+                const ratio = Math.max(0, o.hp / o.maxHp);
+                const barX = x - HP_BAR_W / 2;
+                const barY = y - o.size - HP_BAR_OFFSET;
+                elems.push(
+                  <G key={`hp-${o.id}`}>
+                    <Rect x={barX} y={barY} width={HP_BAR_W} height={HP_BAR_H} fill={COLORS.hpBg} rx={2} />
+                    <Rect x={barX} y={barY} width={HP_BAR_W * ratio} height={HP_BAR_H} fill={hpColor(ratio)} rx={2} />
+                  </G>
+                );
+              }
+              return <G key={o.id}>{elems}</G>;
             })}
           </G>
         </Svg>
