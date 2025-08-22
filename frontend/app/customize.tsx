@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAppearanceStore } from "../../src/store/useAppearance";
+import { useAppearanceStore } from "../src/store/useAppearance";
 import { useRouter } from "expo-router";
 
 const COLORS = {
