@@ -33,6 +33,11 @@ export default function Index() {
           <Text style={styles.buttonText}>Play</Text>
         </Pressable>
 
+        <Pressable accessibilityRole="button" onPress={() => router.push("/customize")}
+          style={({ pressed }) => [styles.button, { borderColor: COLORS.neonPurple, opacity: pressed ? 0.8 : 1 }]}>
+          <Text style={styles.buttonText}>Customization</Text>
+        </Pressable>
+
         <Pressable accessibilityRole="button" onPress={() => router.push("/settings")}
           style={({ pressed }) => [styles.button, { borderColor: COLORS.neonPink, opacity: pressed ? 0.8 : 1 }]}>
           <Text style={styles.buttonText}>Settings</Text>
