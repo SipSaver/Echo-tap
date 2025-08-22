@@ -381,6 +381,13 @@ export default function Game() {
               // Apply brief slow after being hit
               (o as any)._slowTimer = 0.5; // seconds
               (o as any)._origSpeed = (o as any)._origSpeed || o.speed;
+
+              // Reward: if a yellow power orb is destroyed by this hit, refill energy once
+              if (o.hp <= 0 && o.isPower && !(o as any)._rewarded) {
+                energyRef.current = ENERGY_MAX;
+                setEnergy(energyRef.current);
+                (o as any)._rewarded = true;
+              }
             }
           }
         }
