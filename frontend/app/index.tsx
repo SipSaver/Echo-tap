@@ -208,7 +208,7 @@ export default function Index() {
         {/* Glow layer behind (positioned absolutely) */}
         <Animated.Text pointerEvents="none" style={[styles.title, styles.titleGlow, glowStyle]}>echo tap</Animated.Text>
         {/* Main colored text */}
-        <Animated.Text style={[styles.title, colorStyle]}>Echo Tap</Animated.Text>
+        <Animated.Text style={[styles.title, colorStyle]}>echo tap</Animated.Text>
       </View>
 
       <Text style={styles.subtitle}>Push the echoes. Survive the wave.</Text>
