@@ -206,7 +206,7 @@ export default function Index() {
       {/* Animated Title */}
       <View style={styles.titleWrap}>
         {/* Glow layer behind (positioned absolutely) */}
-        <Animated.Text pointerEvents="none" style={[styles.title, styles.titleGlow, glowStyle]}>Echo Tap</Animated.Text>
+        <Animated.Text pointerEvents="none" style={[styles.title, styles.titleGlow, glowStyle]}>echo tap</Animated.Text>
         {/* Main colored text */}
         <Animated.Text style={[styles.title, colorStyle]}>Echo Tap</Animated.Text>
       </View>
