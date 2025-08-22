@@ -51,8 +51,9 @@ export default function Index() {
   const ripples = useRef<Ripple[]>([]);
   const nid = useRef(1);
   const last = useRef<number | null>(null);
-  const spawnTimer = useRef(0);
+  const drawAccum = useRef(0); // ms accumulator for re-render throttling
   const centerRippleTimer = useRef(0);
+  const [, setTick] = useState(0);
 
   const addRipple = useCallback((x: number, y: number, small = false) => {
     ripples.current.push({ id: nid.current++, x, y, r: 0, maxR: small ? 120 : Math.max(size.w, size.h), alpha: small ? 0.5 : 0.25, grow: small ? 380 : 240 });
