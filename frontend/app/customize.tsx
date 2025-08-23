@@ -111,7 +111,7 @@ export default function Customize() {
         <ColorRow title="Quadrant Wave Color" selected={colorQuarter} onSelect={setColorQuarter} />
         <ColorRow title="Core Color" selected={colorCore} onSelect={setColorCore} />
 
-        <Pressable style={[styles.resetBtn]} onPress={reset}>
+        <Pressable style={[styles.resetBtn]} onPress={() => { try { click.current?.replayAsync(); } catch {}; reset(); }}>
           <Text style={styles.resetBtnText}>Reset to Defaults</Text>
         </Pressable>
       </ScrollView>
