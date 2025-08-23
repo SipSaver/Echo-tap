@@ -498,6 +498,11 @@ export default function Game() {
     const c = centerRef.current;
 
     obstacles.current.forEach((o) => {
+      // If blink stalker is in death phase, only tick death timer and skip all interactions
+      if (o.isBlink && (o._dyingMs || 0) > 0) {
+        o._dyingMs = Math.max(0, (o._dyingMs || 0) - dtMs);
+        return;
+      }
       // Inward movement with brief slow after hit
       const slow = o._slowTimer || 0;
       if (slow > 0) o._slowTimer = Math.max(0, slow - dt);
