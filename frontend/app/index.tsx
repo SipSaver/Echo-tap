@@ -251,7 +251,7 @@ export default function Index() {
         {/* Primary Play button (full width) */}
         <Pressable
           accessibilityRole="button"
-          onPress={onPlayPress}
+          onPress={() => { playClick(); onPlayPress(); }}
           onLayout={(e) => (playBtnLayout.current = e.nativeEvent.layout)}
           style={({ pressed }) => [
             styles.button,
