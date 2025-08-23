@@ -63,8 +63,8 @@ const BLINK_PRE_TELE_MS = 300;
 const BLINK_POST_SPAWN_MS = 150;
 
 // Audio URIs
-const SFX_FULL_URI = "https://customer-assets.emergentagent.com/job_wavepusher/artifacts/qmvyqr21_laser-shoot-38126.mp3";
-const SFX_QUAD_URI = "https://customer-assets.emergentagent.com/job_wavepusher/artifacts/myfr5ilv_retro-laser-1-236669.mp3";
+const SFX_FULL = require("../assets/audio/game-bgm.mp3"); // not used, placeholder to avoid network
+const SFX_QUAD = require("../assets/audio/button-click.mp3"); // placeholder to avoid network
 
 // Types
 
