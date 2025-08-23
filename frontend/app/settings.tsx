@@ -70,7 +70,7 @@ export default function Settings() {
         <Text style={styles.buttonText}>Reset High Score</Text>
       </Pressable>
 
-      <Pressable style={[styles.button, { borderColor: COLORS.neonBlue }]} onPress={() => router.back()}>
+      <Pressable style={[styles.button, { borderColor: COLORS.neonBlue }]} onPress={() => { try { click.current?.replayAsync(); } catch {}; router.back(); }}>
         <Text style={styles.buttonText}>Back</Text>
       </Pressable>
     </View>
