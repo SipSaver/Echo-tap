@@ -281,6 +281,10 @@ export default function Game() {
   }, []);
 
   const spawnObstacle = () => {
+
+  const blinkSpawnedRef = useRef(false);
+  const blinkAliveRef = useRef(false);
+
     // Choose a quadrant evenly
     const r = Math.random();
     const quadrant: Quadrant = r < 0.25 ? "TL" : r < 0.5 ? "TR" : r < 0.75 ? "BL" : "BR";
