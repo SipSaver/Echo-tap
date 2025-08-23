@@ -91,7 +91,7 @@ export default function Customize() {
     <View style={[styles.container, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }]}> 
       <View style={styles.headerRow}>
         <Text style={styles.title}>Customization</Text>
-        <Pressable style={styles.headerBtn} onPress={() => router.back()}>
+        <Pressable style={styles.headerBtn} onPress={() => { try { click.current?.replayAsync(); } catch {}; router.back(); }}>
           <Text style={styles.headerBtnText}>Back</Text>
         </Pressable>
       </View>
