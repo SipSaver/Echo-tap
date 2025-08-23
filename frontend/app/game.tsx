@@ -598,9 +598,9 @@ export default function Game() {
 
     // Remove destroyed or out-of-bounds
     const beforeHadBlink = blinkAliveRef.current;
-    obstacles.current = obstacles.current.filter((o) => o.radius > 0 && o.radius < maxRadiusRef.current + 200 && o.hp > 0);
-    const hasBlink = obstacles.current.some((o) => o.isBlink);
-    blinkAliveRef.current = hasBlink ? true : false;
+    obstacles.current = obstacles.current.filter((o) => o.radius > 0 && o.radius < maxRadiusRef.current + 200 && (o.hp > 0 || (o.isBlink && (o._dyingMs || 0) > 0)));
+    const hasBlinkAlive = obstacles.current.some((o) => o.isBlink && o.hp > 0);
+    blinkAliveRef.current = hasBlinkAlive ? true : false;
 
     if (hitCore) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
