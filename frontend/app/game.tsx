@@ -6,6 +6,7 @@ import * as Haptics from "expo-haptics";
 import { Audio } from "expo-av";
 import { useRouter } from "expo-router";
 import { useAppearanceStore } from "../src/store/useAppearance";
+import { useAudioStore } from "../src/store/useAudio";
 
 const COLORS = {
   bg: "#000000",
