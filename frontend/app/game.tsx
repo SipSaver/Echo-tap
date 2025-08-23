@@ -625,12 +625,12 @@ export default function Game() {
     (async () => {
       try {
         await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-        const full = await Audio.Sound.createAsync({ uri: SFX_FULL_URI }, { shouldPlay: false, volume: 0.9 });
-        const quad = await Audio.Sound.createAsync({ uri: SFX_QUAD_URI }, { shouldPlay: false, volume: 0.7 });
-        const click = await Audio.Sound.createAsync(require("../assets/audio/button-click.mp3"), { shouldPlay: false, volume: 0.8 });
-        const explosion = await Audio.Sound.createAsync(require("../assets/audio/explosion.mp3"), { shouldPlay: false, volume: 0.9 });
-        const failed = await Audio.Sound.createAsync(require("../assets/audio/failed.mp3"), { shouldPlay: false, volume: 0.9 });
-        const bgm = await Audio.Sound.createAsync(require("../assets/audio/game-bgm.mp3"), { shouldPlay: true, isLooping: true, volume: 0.55 });
+        const full = await Audio.Sound.createAsync({ uri: SFX_FULL_URI }, { shouldPlay: false, volume: sfxEnabled ? 0.9 : 0 });
+        const quad = await Audio.Sound.createAsync({ uri: SFX_QUAD_URI }, { shouldPlay: false, volume: sfxEnabled ? 0.7 : 0 });
+        const click = await Audio.Sound.createAsync(require("../assets/audio/button-click.mp3"), { shouldPlay: false, volume: sfxEnabled ? 0.8 : 0 });
+        const explosion = await Audio.Sound.createAsync(require("../assets/audio/explosion.mp3"), { shouldPlay: false, volume: sfxEnabled ? 0.9 : 0 });
+        const failed = await Audio.Sound.createAsync(require("../assets/audio/failed.mp3"), { shouldPlay: false, volume: sfxEnabled ? 0.9 : 0 });
+        const bgm = await Audio.Sound.createAsync(require("../assets/audio/game-bgm.mp3"), { shouldPlay: musicEnabled, isLooping: true, volume: musicEnabled ? 0.55 : 0 });
         fullSoundRef.current = full.sound;
         quadSoundRef.current = quad.sound;
         clickSoundRef.current = click.sound;
