@@ -428,31 +428,33 @@ export default function Game() {
     spawnTimer.current += dt * 1000;
     if (spawnTimer.current >= spawnInterval.current) {
       spawnTimer.current = 0;
-      const cluster = Math.random() < 0.25 ? 2 + Math.floor(Math.random() * 2) : 1;
-      for (let i = 0; i < cluster; i++) spawnObstacle();
+      if (!blinkAliveRef.current) {
+        const cluster = Math.random() < 0.25 ? 2 + Math.floor(Math.random() * 2) : 1;
+        for (let i = 0; i < cluster; i++) spawnObstacle();
 
-      // Power orb cadence (every 7s)
-      if (powerCooldownRef.current <= 0) {
-        const r = Math.random();
-        const quadrant: Quadrant = r < 0.25 ? "TL" : r < 0.5 ? "TR" : r < 0.75 ? "BL" : "BR";
-        const { start, end } = getAnglesForQuadrant(quadrant);
-        const angle = randomAngleWithin(start, end);
-        const radius = maxRadiusRef.current + 80;
-        const size = 12 + Math.random() * 10;
-        obstacles.current.push({
-          id: nextId.current++,
-          angle,
-          radius,
-          size,
-          shape: "circle",
-          speed: BASE_OBSTACLE_SPEED * speedMultiplier.current,
-          hp: 3,
-          maxHp: 3,
-          tough: true,
-          hitBy: new Set<number>(),
-          isPower: true,
-        });
-        powerCooldownRef.current = 7000; // 7 seconds
+        // Power orb cadence (every 7s)
+        if (powerCooldownRef.current <= 0) {
+          const r = Math.random();
+          const quadrant: Quadrant = r < 0.25 ? "TL" : r < 0.5 ? "TR" : r < 0.75 ? "BL" : "BR";
+          const { start, end } = getAnglesForQuadrant(quadrant);
+          const angle = randomAngleWithin(start, end);
+          const radius = maxRadiusRef.current + 80;
+          const size = 12 + Math.random() * 10;
+          obstacles.current.push({
+            id: nextId.current++,
+            angle,
+            radius,
+            size,
+            shape: "circle",
+            speed: BASE_OBSTACLE_SPEED * speedMultiplier.current,
+            hp: 3,
+            maxHp: 3,
+            tough: true,
+            hitBy: new Set<number>(),
+            isPower: true,
+          });
+          powerCooldownRef.current = 7000; // 7 seconds
+        }
       }
     }
 
