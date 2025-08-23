@@ -145,17 +145,21 @@ export default function Index() {
   const clickSfx = useRef<Audio.Sound | null>(null);
   const musicEnabled = useAudioStore((s) => s.musicEnabled);
   const sfxEnabled = useAudioStore((s) => s.sfxEnabled);
+  const [audioHydrated, setAudioHydrated] = useState(false);
+  useEffect(() => {
+    const p: any = (useAudioStore as any).persist;
+    const unsub = p?.onFinishHydration?.(() => setAudioHydrated(true));
+    if (p?.hasHydrated?.()) setAudioHydrated(true);
+    return () => { try { unsub?.(); } catch {} };
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
       let mounted = true;
       (async () => {
-          if (!musicEnabled) {
-            await bgm.sound.stopAsync();
-          }
-
         try {
           await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-          const bgm = await Audio.Sound.createAsync(require("../assets/audio/menu-bgm.mp3"), { shouldPlay: musicEnabled, isLooping: true, volume: 0.55 });
+          const bgm = await Audio.Sound.createAsync(require("../assets/audio/menu-bgm.mp3"), { shouldPlay: false, isLooping: true, volume: 0.55 });
           const click = await Audio.Sound.createAsync(require("../assets/audio/button-click.mp3"), { shouldPlay: false, volume: 0.8 });
           if (!mounted) {
             await bgm.sound.unloadAsync();
@@ -164,6 +168,9 @@ export default function Index() {
           }
           menuBgm.current = bgm.sound;
           clickSfx.current = click.sound;
+          if (audioHydrated && musicEnabled) {
+            try { await menuBgm.current.playAsync(); } catch {}
+          }
         } catch {}
       })();
       return () => {
@@ -173,8 +180,18 @@ export default function Index() {
         menuBgm.current = null;
         clickSfx.current = null;
       };
-    }, [])
+    }, [audioHydrated, musicEnabled])
   );
+
+  useEffect(() => {
+    if (!menuBgm.current) return;
+    (async () => {
+      try {
+        if (audioHydrated && musicEnabled) await menuBgm.current!.playAsync();
+        else await menuBgm.current!.stopAsync();
+      } catch {}
+    })();
+  }, [audioHydrated, musicEnabled]);
 
   const playClick = useCallback(() => { if (!sfxEnabled) return; try { clickSfx.current?.replayAsync(); } catch {} }, [sfxEnabled]);
 
