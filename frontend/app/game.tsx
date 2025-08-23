@@ -324,6 +324,49 @@ export default function Game() {
     // Shape by HP (color is decided at render time)
     const shape: Shape = hp === 2 ? "square" : "circle"; // 3-HP circle, 2-HP square, 1-HP circle
 
+
+  // Create Blink Stalker at a safe initial spot
+  const createBlinkStalker = (): Obstacle | null => {
+    const c = centerRef.current;
+    const w = Math.max(1, Dimensions.get("window").width);
+    const h = Math.max(1, Dimensions.get("window").height);
+    const minDim = Math.min(w, h);
+
+    const marginX = w * BLINK_SCREEN_MARGIN_PCT;
+    const marginY = h * BLINK_SCREEN_MARGIN_PCT;
+    const centerSafe = minDim * BLINK_CENTER_SAFE_PCT;
+
+    // pick starting quadrant randomly
+    const r = Math.random();
+    const q: Quadrant = r < 0.25 ? "TL" : r < 0.5 ? "TR" : r < 0.75 ? "BL" : "BR";
+    const { start, end } = getAnglesForQuadrant(q);
+    const angle = randomAngleWithin(start, end);
+
+    // start at outer edge, but inside screen bounds
+    const radius = maxRadiusRef.current + 80;
+    const size = 14;
+
+    const o: Obstacle = {
+      id: nextId.current++,
+      angle,
+      radius,
+      size,
+      shape: "circle",
+      speed: BASE_OBSTACLE_SPEED * speedMultiplier.current * BLINK_SPEED_MULT,
+      hp: BLINK_HP,
+      maxHp: BLINK_HP,
+      tough: true,
+      hitBy: new Set<number>(),
+      isBlink: true,
+      _teleportCdMs: BLINK_TELEPORT_COOLDOWN_MS,
+      _preTeleMs: 0,
+      _postSpawnMs: 0,
+      _lastQuadrant: q,
+      _failedTp: 0,
+    };
+    return o;
+  };
+
     obstacles.current.push({ id: nextId.current++, angle, radius, size, shape, speed: BASE_OBSTACLE_SPEED * speedMultiplier.current, hp, maxHp: hp, tough, hitBy: new Set<number>() });
   };
 
