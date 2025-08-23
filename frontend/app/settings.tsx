@@ -72,8 +72,8 @@ export default function Settings() {
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
           <Text style={styles.label}>Music</Text>
           <Switch
-            value={useAudioStore.getState().musicEnabled}
-            onValueChange={(v) => useAudioStore.getState().setMusicEnabled(v)}
+            value={musicEnabled}
+            onValueChange={(v) => { try { click.current?.replayAsync(); } catch {}; setMusicEnabled(v); }}
           />
         </View>
         <View style={{ height: 10 }} />
