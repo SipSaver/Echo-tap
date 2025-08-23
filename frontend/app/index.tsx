@@ -144,6 +144,8 @@ export default function Index() {
   // Menu BGM + button click SFX
   const menuBgm = useRef<Audio.Sound | null>(null);
   const clickSfx = useRef<Audio.Sound | null>(null);
+  const musicEnabled = useAudioStore((s) => s.musicEnabled);
+  const sfxEnabled = useAudioStore((s) => s.sfxEnabled);
   useFocusEffect(
     useCallback(() => {
       let mounted = true;
