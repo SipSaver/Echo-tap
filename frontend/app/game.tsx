@@ -441,7 +441,7 @@ export default function Game() {
     ripples.current = ripples.current.filter((r) => r.radius < MAX_RIPPLE_RADIUS);
 
     // Blink Stalker gate: spawn once at score >= 27
-    if (!blinkSpawnedRef.current && scoreRef.current >= 27) {
+    if (!blinkSpawnedRef.current && scoreRef.current >= 15) {
       blinkSpawnedRef.current = true;
       const o = createBlinkStalker();
       if (o) {
