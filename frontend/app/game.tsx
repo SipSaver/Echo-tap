@@ -90,7 +90,7 @@ interface Obstacle {
   hp: number; // current
   maxHp: number; // max for bar
   tough: boolean;
-  hitBy: Set&lt;number&gt;; // ripple ids that already dealt damage
+  hitBy: Set<number>; // ripple ids that already dealt damage
   isPower?: boolean; // yellow 3-HP energy orb
   // Blink Stalker special flags
   isBlink?: boolean;
