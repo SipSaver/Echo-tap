@@ -701,6 +701,19 @@ export default function Game() {
               const x = center.x + Math.cos(o.angle) * o.radius;
               const y = center.y + Math.sin(o.angle) * o.radius;
               const color = o.isPower ? COLORS.powerYellow : (o.tough ? COLORS.neonPurple : COLORS.neonBlue);
+
+              // Blink death FX: ring that fades while _dyingMs > 0
+              if (o.isBlink && (o._dyingMs || 0) > 0) {
+                const t = 1 - Math.max(0, Math.min(1, (o._dyingMs || 0) / BLINK_DEATH_MS));
+                const ringR = o.size + 12 + t * 22; // grow a bit
+                const strokeOp = 1 - t;
+                return (
+                  <G key={o.id}>
+                    <Circle cx={x} cy={y} r={ringR} stroke={COLORS.neonPurple} strokeWidth={3} strokeOpacity={strokeOp} fill="none" />
+                  </G>
+                );
+              }
+
               const elems: any[] = [];
               const pre = o._preTeleMs || 0;
               const post = o._postSpawnMs || 0;
@@ -710,10 +723,6 @@ export default function Game() {
                 elems.push(<Circle key={`s-${o.id}`} cx={x} cy={y} r={o.size} fill={color} fillOpacity={fillOpacity} />);
               } else {
                 elems.push(<Rect key={`s-${o.id}`} x={x - o.size} y={y - o.size} width={o.size * 2} height={o.size * 2} fill={color} fillOpacity={fillOpacity} />);
-              }
-              if (o.isBlink && o.hp <= 0) {
-                // death FX: quick blink-out (render a fading ring)
-                const deathAlpha = 0.0; // already removed in logic; placeholder if we later keep corpse
               }
               if (o.tough && o.hp < o.maxHp) {
                 const ratio = Math.max(0, o.hp / o.maxHp);
