@@ -150,6 +150,12 @@ export default function Game() {
   const next2HpCooldownRef = useRef(0); // ms until next 2-HP allowed
   const next3HpCooldownRef = useRef(0); // ms until next 3-HP allowed
 
+  // Throttled state syncing
+  const energySyncTimer = useRef(0); // ms accumulator
+  const scoreSyncTimer = useRef(0); // ms accumulator
+  const lastEnergySet = useRef(ENERGY_MAX);
+  const lastScoreSet = useRef(0);
+
   const lastTime = useRef<number | null>(null);
   const spawnTimer = useRef(0);
   const spawnInterval = useRef(BASE_SPAWN_INTERVAL);
@@ -198,6 +204,10 @@ export default function Game() {
     setScore(0);
     energyRef.current = ENERGY_MAX;
     setEnergy(ENERGY_MAX);
+    lastScoreSet.current = 0;
+    lastEnergySet.current = ENERGY_MAX;
+    scoreSyncTimer.current = 0;
+    energySyncTimer.current = 0;
     lastTime.current = null;
     spawnTimer.current = 0;
     spawnInterval.current = BASE_SPAWN_INTERVAL;
@@ -259,6 +269,7 @@ export default function Game() {
     if (energyRef.current < cost) return false;
     energyRef.current = Math.max(0, energyRef.current - cost);
     setEnergy(energyRef.current);
+    lastEnergySet.current = energyRef.current;
     return true;
   };
 
@@ -436,7 +447,6 @@ export default function Game() {
 
     // Energy regen
     energyRef.current = Math.min(ENERGY_MAX, energyRef.current + ENERGY_REGEN_PER_SEC * dt);
-    setEnergy(energyRef.current);
 
     // Difficulty ramp
     spawnInterval.current = Math.max(350, spawnInterval.current * Math.pow(DIFFICULTY_RAMP, dt * 60));
@@ -444,7 +454,24 @@ export default function Game() {
 
     // Update score
     scoreRef.current += dt;
-    setScore(scoreRef.current);
+
+    // Throttled state sync
+    energySyncTimer.current += dtMs;
+    scoreSyncTimer.current += dtMs;
+
+    const energyDiff = Math.abs(energyRef.current - lastEnergySet.current);
+    if (energySyncTimer.current >= 100 || energyDiff >= 5) {
+      setEnergy(energyRef.current);
+      lastEnergySet.current = energyRef.current;
+      energySyncTimer.current = 0;
+    }
+
+    const scoreDiff = Math.abs(scoreRef.current - lastScoreSet.current);
+    if (scoreSyncTimer.current >= 100 || scoreDiff >= 1) {
+      setScore(scoreRef.current);
+      lastScoreSet.current = scoreRef.current;
+      scoreSyncTimer.current = 0;
+    }
 
     // Update ripples
     ripples.current.forEach((r) => {
@@ -574,6 +601,7 @@ export default function Game() {
                 if (o.isPower && !o._rewarded) {
                   energyRef.current = ENERGY_MAX;
                   setEnergy(energyRef.current);
+                  lastEnergySet.current = energyRef.current;
                   o._rewarded = true;
                 }
                 if (o.isBlink && !o._exploded) {
@@ -593,6 +621,7 @@ export default function Game() {
         if (o.isPower) {
           energyRef.current = Math.max(0, energyRef.current - 5);
           setEnergy(energyRef.current);
+          lastEnergySet.current = energyRef.current;
           o.hp = 0; // remove
         } else {
           hitCore = true;
@@ -610,6 +639,10 @@ export default function Game() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       try { failedRef.current?.replayAsync(); } catch {}
       try { gameBgmRef.current?.stopAsync(); } catch {}
+      setScore(scoreRef.current);
+      lastScoreSet.current = scoreRef.current;
+      setEnergy(energyRef.current);
+      lastEnergySet.current = energyRef.current;
       setGameOver(true);
       setPaused(true);
       const final = Math.floor(scoreRef.current);
