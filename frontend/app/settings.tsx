@@ -16,6 +16,10 @@ const COLORS = {
 export default function Settings() {
   const insets = useSafeAreaInsets();
   const click = useRef<Audio.Sound | null>(null);
+  const musicEnabled = useAudioStore((s) => s.musicEnabled);
+  const setMusicEnabled = useAudioStore((s) => s.setMusicEnabled);
+  const sfxEnabled = useAudioStore((s) => s.sfxEnabled);
+  const setSfxEnabled = useAudioStore((s) => s.setSfxEnabled);
   useEffect(() => {
     let mounted = true;
     (async () => {
