@@ -66,7 +66,7 @@ export default function Settings() {
         <Text style={styles.value}>{best}</Text>
       </View>
 
-      <Pressable style={[styles.button, { borderColor: COLORS.neonPink }]} onPress={resetHighScore}>
+      <Pressable style={[styles.button, { borderColor: COLORS.neonPink }]} onPress={() => { try { click.current?.replayAsync(); } catch {}; resetHighScore(); }}>
         <Text style={styles.buttonText}>Reset High Score</Text>
       </Pressable>
 
