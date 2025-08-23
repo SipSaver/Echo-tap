@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, Rect, G, Path } from "react-native-svg";
 import * as Haptics from "expo-haptics";
 import { Audio } from "expo-av";
+import * as FileSystem from "expo-file-system";
 import { useRouter } from "expo-router";
 import { useAppearanceStore } from "../src/store/useAppearance";
 import { useAudioStore } from "../src/store/useAudio";
@@ -67,6 +68,21 @@ const BLINK_DEATH_MS = 220;
 // Audio: keep shot SFX as remote (existing), new local SFX for click/explosion/failed, and looped game BGM
 const SFX_FULL_URI = "https://customer-assets.emergentagent.com/job_wavepusher/artifacts/qmvyqr21_laser-shoot-38126.mp3";
 const SFX_QUAD_URI = "https://customer-assets.emergentagent.com/job_wavepusher/artifacts/myfr5ilv_retro-laser-1-236669.mp3";
+
+// cache remote SFX locally so they're only fetched once
+const CACHE_FULL = `${FileSystem.cacheDirectory}sfx-full.mp3`;
+const CACHE_QUAD = `${FileSystem.cacheDirectory}sfx-quad.mp3`;
+const cacheSfx = async (uri: string, cachePath: string) => {
+  try {
+    const info = await FileSystem.getInfoAsync(cachePath);
+    if (!info.exists) {
+      await FileSystem.downloadAsync(uri, cachePath);
+    }
+    return cachePath;
+  } catch {
+    return uri;
+  }
+};
 
 // Types
 
@@ -625,8 +641,10 @@ export default function Game() {
     (async () => {
       try {
         await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-        const full = await Audio.Sound.createAsync({ uri: SFX_FULL_URI }, { shouldPlay: false, volume: sfxEnabled ? 0.9 : 0 });
-        const quad = await Audio.Sound.createAsync({ uri: SFX_QUAD_URI }, { shouldPlay: false, volume: sfxEnabled ? 0.7 : 0 });
+        const fullUri = await cacheSfx(SFX_FULL_URI, CACHE_FULL);
+        const quadUri = await cacheSfx(SFX_QUAD_URI, CACHE_QUAD);
+        const full = await Audio.Sound.createAsync({ uri: fullUri }, { shouldPlay: false, volume: sfxEnabled ? 0.9 : 0 });
+        const quad = await Audio.Sound.createAsync({ uri: quadUri }, { shouldPlay: false, volume: sfxEnabled ? 0.7 : 0 });
         const click = await Audio.Sound.createAsync(require("../assets/audio/button-click.mp3"), { shouldPlay: false, volume: sfxEnabled ? 0.8 : 0 });
         const explosion = await Audio.Sound.createAsync(require("../assets/audio/explosion.mp3"), { shouldPlay: false, volume: sfxEnabled ? 0.9 : 0 });
         const failed = await Audio.Sound.createAsync(require("../assets/audio/failed.mp3"), { shouldPlay: false, volume: sfxEnabled ? 0.9 : 0 });
