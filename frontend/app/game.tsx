@@ -556,7 +556,7 @@ export default function Game() {
       }
 
       // Check core collision
-      if (o.radius <= CORE_RADIUS + o.size * 0.5) {
+      if (!noCollisionNow && o.radius <= CORE_RADIUS + o.size * 0.5) {
         if (o.isPower) {
           // Power orb reached center: steal 5% energy, no game over
           energyRef.current = Math.max(0, energyRef.current - 5);
