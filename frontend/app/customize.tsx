@@ -68,6 +68,24 @@ export default function Customize() {
     setColorCore,
     reset,
   } = useAppearanceStore();
+  // click sfx
+  const click = useRef<Audio.Sound | null>(null);
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+        const s = await Audio.Sound.createAsync(require("../assets/audio/button-click.mp3"), { shouldPlay: false, volume: 0.8 });
+        if (!mounted) { await s.sound.unloadAsync(); return; }
+        click.current = s.sound;
+      } catch {}
+    })();
+    return () => {
+      try { click.current?.unloadAsync(); } catch {}
+      click.current = null;
+    };
+  }, []);
+
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }]}> 
