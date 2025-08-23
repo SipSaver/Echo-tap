@@ -10,6 +10,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { Audio } from "expo-av";
 import { useAudioStore } from "../src/store/useAudio";
 
+interface AudioStorePersist {
+  persist?: {
+    onFinishHydration?: (cb: () => void) => () => void;
+    hasHydrated?: () => boolean;
+  };
+}
+
 const COLORS = {
   bg: "#000000",
   neonBlue: "#00FFFF",
@@ -147,10 +154,14 @@ export default function Index() {
   const sfxEnabled = useAudioStore((s) => s.sfxEnabled);
   const [audioHydrated, setAudioHydrated] = useState(false);
   useEffect(() => {
-    const p: any = (useAudioStore as any).persist;
+    const p = (useAudioStore as AudioStorePersist).persist;
     const unsub = p?.onFinishHydration?.(() => setAudioHydrated(true));
     if (p?.hasHydrated?.()) setAudioHydrated(true);
-    return () => { try { unsub?.(); } catch {} };
+    return () => {
+      try {
+        unsub?.();
+      } catch {}
+    };
   }, []);
 
   useFocusEffect(
