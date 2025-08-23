@@ -332,6 +332,22 @@ export default function Game() {
 
     if (pausedRef.current || gameOverRef.current) {
       lastTime.current = t;
+
+    // Blink Stalker gate: spawn once at score >= 27
+    if (!blinkSpawnedRef.current && scoreRef.current >= 27) {
+      blinkSpawnedRef.current = true;
+      const o = createBlinkStalker();
+      if (o) {
+        obstacles.current.push(o);
+        blinkAliveRef.current = true;
+      }
+    }
+
+    // If blink is alive, pause regular spawns
+    if (blinkAliveRef.current) {
+      // Still update powerCooldown for future cadence but no spawns now
+    } else {
+
       return;
     }
 
