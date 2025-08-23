@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppearanceStore } from "../src/store/useAppearance";
 import { useRouter } from "expo-router";
 import { Audio } from "expo-av";
+import { useAudioStore } from "../src/store/useAudio";
 
 const COLORS = {
   bg: "#000000",
