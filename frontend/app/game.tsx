@@ -157,6 +157,10 @@ export default function Game() {
   // audio
   const fullSoundRef = useRef<Audio.Sound | null>(null);
   const quadSoundRef = useRef<Audio.Sound | null>(null);
+  const clickSoundRef = useRef<Audio.Sound | null>(null);
+  const explosionRef = useRef<Audio.Sound | null>(null);
+  const failedRef = useRef<Audio.Sound | null>(null);
+  const gameBgmRef = useRef<Audio.Sound | null>(null);
 
   // Persistence: best score
   const loadBest = useCallback(async () => {
