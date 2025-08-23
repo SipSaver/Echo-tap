@@ -80,8 +80,8 @@ export default function Settings() {
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
           <Text style={styles.label}>SFX</Text>
           <Switch
-            value={useAudioStore.getState().sfxEnabled}
-            onValueChange={(v) => useAudioStore.getState().setSfxEnabled(v)}
+            value={sfxEnabled}
+            onValueChange={(v) => { try { click.current?.replayAsync(); } catch {}; setSfxEnabled(v); }}
           />
         </View>
       </View>
