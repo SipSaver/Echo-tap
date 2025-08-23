@@ -1,4 +1,9 @@
 import os
+import pytest
+
+# skip if httpx isn't available (required by fastapi.testclient)
+pytest.importorskip("httpx")
+
 from fastapi.testclient import TestClient
 
 # Ensure required environment variables for import
@@ -6,8 +11,6 @@ os.environ.setdefault('MONGO_URL', 'mongodb://localhost:27017')
 os.environ.setdefault('DB_NAME', 'testdb')
 
 from backend.server import app  # noqa: E402
-
-import pytest
 
 class FakeCollection:
     def __init__(self):
