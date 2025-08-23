@@ -161,6 +161,7 @@ export default function Game() {
   const explosionRef = useRef<Audio.Sound | null>(null);
   const failedRef = useRef<Audio.Sound | null>(null);
   const gameBgmRef = useRef<Audio.Sound | null>(null);
+  const playClick = () => { try { clickSoundRef.current?.replayAsync(); } catch {} };
 
   // Persistence: best score
   const loadBest = useCallback(async () => {
