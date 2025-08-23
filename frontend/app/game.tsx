@@ -670,7 +670,7 @@ export default function Game() {
           </View>
           <Text style={styles.energyPct}>{energyPct}%</Text>
         </View>
-        <Pressable accessibilityRole="button" onPress={() => setPaused((p) => !p)} style={styles.pauseBtn}>
+        <Pressable accessibilityRole="button" onPress={() => { playClick(); setPaused((p) => !p); }} style={styles.pauseBtn}>
           <Text style={styles.pauseText}>{paused ? "Resume" : "Pause"}</Text>
         </Pressable>
       </View>
