@@ -44,7 +44,7 @@ const COOLDOWN_FULL_MS = 320;
 // Pushback tuning (tough get extra pushback); 3-HP stronger than 2-HP
 const PUSHBACK_FULL = 320; // px/s base
 const PUSHBACK_QUAD = 260; // px/s base
-const TOUGH_PUSH_MULT = 1.25; // base for HP&gt;=2
+const TOUGH_PUSH_MULT = 1.25; // base for HP>=2
 const PUSH_MULT_HP3 = 1.15; // extra for 3-HP specifically
 
 // HP bar render
@@ -112,12 +112,12 @@ export default function Game() {
 
   const [size, setSize] = useState({ w: Dimensions.get("window").width, h: Dimensions.get("window").height });
 
-  const center = useMemo(() =&gt; ({ x: size.w / 2, y: size.h / 2 }), [size]);
-  const maxRadius = useMemo(() =&gt; Math.max(center.x, center.y) + 60, [center]);
+  const center = useMemo(() => ({ x: size.w / 2, y: size.h / 2 }), [size]);
+  const maxRadius = useMemo(() => Math.max(center.x, center.y) + 60, [center]);
 
   const centerRef = useRef(center);
   const maxRadiusRef = useRef(maxRadius);
-  useEffect(() =&gt; {
+  useEffect(() => {
     centerRef.current = center;
     maxRadiusRef.current = maxRadius;
   }, [center, maxRadius]);
@@ -133,8 +133,8 @@ export default function Game() {
   const [gameOver, setGameOver] = useState(false);
   const pausedRef = useRef(false);
   const gameOverRef = useRef(false);
-  useEffect(() =&gt; { pausedRef.current = paused; }, [paused]);
-  useEffect(() =&gt; { gameOverRef.current = gameOver; }, [gameOver]);
+  useEffect(() => { pausedRef.current = paused; }, [paused]);
+  useEffect(() => { gameOverRef.current = gameOver; }, [gameOver]);
 
   const [energy, setEnergy] = useState(ENERGY_MAX);
   const energyRef = useRef(ENERGY_MAX);
@@ -142,11 +142,11 @@ export default function Game() {
   const next2HpCooldownRef = useRef(0); // ms until next 2-HP allowed
   const next3HpCooldownRef = useRef(0); // ms until next 3-HP allowed
 
-  const lastTime = useRef<number | null&gt;(null);
+  const lastTime = useRef<number | null>(null);
   const spawnTimer = useRef(0);
   const spawnInterval = useRef(BASE_SPAWN_INTERVAL);
   const speedMultiplier = useRef(1);
-  const rafId = useRef<number | null&gt;(null);
+  const rafId = useRef<number | null>(null);
   const powerCooldownRef = useRef(0); // 7s cadence for yellow orb
 
   // Blink Stalker lifecycle flags
@@ -154,11 +154,11 @@ export default function Game() {
   const blinkAliveRef = useRef(false);
 
   // audio
-  const fullSoundRef = useRef<Audio.Sound | null&gt;(null);
-  const quadSoundRef = useRef<Audio.Sound | null&gt;(null);
+  const fullSoundRef = useRef<Audio.Sound | null>(null);
+  const quadSoundRef = useRef<Audio.Sound | null>(null);
 
   // Persistence: best score
-  const loadBest = useCallback(async () =&gt; {
+  const loadBest = useCallback(async () => {
     try {
       const mod = await import("@react-native-async-storage/async-storage");
       const v = await mod.default.getItem("echo_best");
@@ -166,18 +166,18 @@ export default function Game() {
     } catch {}
   }, []);
 
-  const saveBest = useCallback(async (n: number) =&gt; {
+  const saveBest = useCallback(async (n: number) => {
     try {
       const mod = await import("@react-native-async-storage/async-storage");
       await mod.default.setItem("echo_best", String(n));
     } catch {}
   }, []);
 
-  useEffect(() =&gt; {
+  useEffect(() => {
     loadBest();
   }, [loadBest]);
 
-  const reset = useCallback(() =&gt; {
+  const reset = useCallback(() => {
     ripples.current = [];
     obstacles.current = [];
     nextId.current = 1;
@@ -198,7 +198,7 @@ export default function Game() {
     setPaused(false);
   }, []);
 
-  const getQuadrantFromPoint = (x: number, y: number): Quadrant =&gt; {
+  const getQuadrantFromPoint = (x: number, y: number): Quadrant => {
     const c = centerRef.current;
     const left = x < c.x;
     const top = y < c.y;
@@ -208,7 +208,7 @@ export default function Game() {
     return "BR";
   };
 
-  const getAnglesForQuadrant = (q: Quadrant) =&gt; {
+  const getAnglesForQuadrant = (q: Quadrant) => {
     switch (q) {
       case "TL":
         return { start: -Math.PI, end: -Math.PI / 2 };
@@ -225,7 +225,7 @@ export default function Game() {
   // Keep spawns away from quadrant borders to avoid ambiguity
   const ANGLE_MARGIN_DEG = 6; // a "couple" of degrees
   const ANGLE_MARGIN = (ANGLE_MARGIN_DEG * Math.PI) / 180;
-  const randomAngleWithin = (start: number, end: number, margin: number = ANGLE_MARGIN) =&gt; {
+  const randomAngleWithin = (start: number, end: number, margin: number = ANGLE_MARGIN) => {
     const width = end - start;
     const innerStart = start + margin;
     const innerEnd = end - margin;
@@ -233,25 +233,25 @@ export default function Game() {
     return innerStart + Math.random() * (innerEnd - innerStart);
   };
 
-  const arcStrokePath = (cx: number, cy: number, r: number, start: number, end: number) =&gt; {
+  const arcStrokePath = (cx: number, cy: number, r: number, start: number, end: number) => {
     const x0 = cx + r * Math.cos(start);
     const y0 = cy + r * Math.sin(start);
     const x1 = cx + r * Math.cos(end);
     const y1 = cy + r * Math.sin(end);
-    const largeArc = end - start &gt; Math.PI ? 1 : 0;
+    const largeArc = end - start > Math.PI ? 1 : 0;
     return `M ${x0} ${y0} A ${r} ${r} 0 ${largeArc} 1 ${x1} ${y1}`;
   };
 
-  const trySpendEnergy = (cost: number) =&gt; {
+  const trySpendEnergy = (cost: number) => {
     if (energyRef.current < cost) return false;
     energyRef.current = Math.max(0, energyRef.current - cost);
     setEnergy(energyRef.current);
     return true;
   };
 
-  const onTap = useCallback((x: number, y: number) =&gt; {
+  const onTap = useCallback((x: number, y: number) => {
     if (pausedRef.current || gameOverRef.current) return;
-    if (cooldownRef.current &gt; 0) return;
+    if (cooldownRef.current > 0) return;
 
     const c = centerRef.current;
     const dx = x - c.x;
@@ -283,7 +283,7 @@ export default function Game() {
     }
   }, []);
 
-  const spawnObstacle = () =&gt; {
+  const spawnObstacle = () => {
     // Choose a quadrant evenly
     const r = Math.random();
     const quadrant: Quadrant = r < 0.25 ? "TL" : r < 0.5 ? "TR" : r < 0.75 ? "BL" : "BR";
@@ -305,14 +305,14 @@ export default function Game() {
       next2HpCooldownRef.current = 2000 + Math.random() * 1000; // 2-3s
     }
 
-    const tough = hp &gt; 1;
+    const tough = hp > 1;
     const shape: Shape = hp === 2 ? "square" : "circle";
 
-    obstacles.current.push({ id: nextId.current++, angle, radius, size, shape, speed: BASE_OBSTACLE_SPEED * speedMultiplier.current, hp, maxHp: hp, tough, hitBy: new Set<number&gt;() });
+    obstacles.current.push({ id: nextId.current++, angle, radius, size, shape, speed: BASE_OBSTACLE_SPEED * speedMultiplier.current, hp, maxHp: hp, tough, hitBy: new Set<number>() });
   };
 
   // Create Blink Stalker at a safe initial spot (spawns outside and moves inward slowly)
-  const createBlinkStalker = (): Obstacle | null =&gt; {
+  const createBlinkStalker = (): Obstacle | null => {
     // Start like other enemies from an edge but slower and tankier
     const r = Math.random();
     const q: Quadrant = r < 0.25 ? "TL" : r < 0.5 ? "TR" : r < 0.75 ? "BL" : "BR";
@@ -331,7 +331,7 @@ export default function Game() {
       hp: BLINK_HP,
       maxHp: BLINK_HP,
       tough: true,
-      hitBy: new Set<number&gt;(),
+      hitBy: new Set<number>(),
       isBlink: true,
       _teleportCdMs: BLINK_TELEPORT_COOLDOWN_MS,
       _preTeleMs: 0,
@@ -344,7 +344,7 @@ export default function Game() {
   };
 
   // Attempt to teleport the blink stalker to a safe spot
-  const attemptBlinkTeleport = (o: Obstacle): boolean =&gt; {
+  const attemptBlinkTeleport = (o: Obstacle): boolean => {
     if (!o.isBlink) return false;
     const c = centerRef.current;
     const w = Math.max(1, Dimensions.get("window").width);
@@ -359,7 +359,7 @@ export default function Game() {
     const playerY = c.y;
 
     const currentQ = o._lastQuadrant || getQuadrantFromPoint(c.x + Math.cos(o.angle) * o.radius, c.y + Math.sin(o.angle) * o.radius);
-    const choices: Quadrant[] = ["TL", "TR", "BL", "BR"].filter((q) =&gt; q !== currentQ) as Quadrant[];
+    const choices: Quadrant[] = ["TL", "TR", "BL", "BR"].filter((q) => q !== currentQ) as Quadrant[];
     const targetQ = choices[Math.floor(Math.random() * choices.length)];
 
     let best: { x: number; y: number; angle: number; radius: number; d: number } | null = null;
@@ -381,7 +381,7 @@ export default function Game() {
 
       const ang = Math.atan2(dy, dx);
       const d = distToPlayer;
-      if (!best || d &gt; best.d) best = { x, y, angle: ang, radius: rad, d };
+      if (!best || d > best.d) best = { x, y, angle: ang, radius: rad, d };
       found = true;
       break; // accept first valid to keep perf bounded
     }
@@ -401,7 +401,7 @@ export default function Game() {
     return true;
   };
 
-  const updateLoop = useCallback((t: number) =&gt; {
+  const updateLoop = useCallback((t: number) => {
     rafId.current = requestAnimationFrame(updateLoop);
 
     // Cooldowns always tick
@@ -434,13 +434,13 @@ export default function Game() {
     setScore(scoreRef.current);
 
     // Update ripples
-    ripples.current.forEach((r) =&gt; {
+    ripples.current.forEach((r) => {
       r.radius += RIPPLE_SPEED * dt;
     });
-    ripples.current = ripples.current.filter((r) =&gt; r.radius < MAX_RIPPLE_RADIUS);
+    ripples.current = ripples.current.filter((r) => r.radius < MAX_RIPPLE_RADIUS);
 
-    // Blink Stalker gate: spawn once at score &gt;= 27
-    if (!blinkSpawnedRef.current &amp;&amp; scoreRef.current &gt;= 27) {
+    // Blink Stalker gate: spawn once at score >= 27
+    if (!blinkSpawnedRef.current &amp;&amp; scoreRef.current >= 27) {
       blinkSpawnedRef.current = true;
       const o = createBlinkStalker();
       if (o) {
@@ -451,7 +451,7 @@ export default function Game() {
 
     // Spawn obstacles on interval (paused when blink alive)
     spawnTimer.current += dt * 1000;
-    if (spawnTimer.current &gt;= spawnInterval.current) {
+    if (spawnTimer.current >= spawnInterval.current) {
       spawnTimer.current = 0;
       if (!blinkAliveRef.current) {
         const cluster = Math.random() < 0.25 ? 2 + Math.floor(Math.random() * 2) : 1;
@@ -475,7 +475,7 @@ export default function Game() {
             hp: 3,
             maxHp: 3,
             tough: true,
-            hitBy: new Set<number&gt;(),
+            hitBy: new Set<number>(),
             isPower: true,
           });
           powerCooldownRef.current = 7000; // 7 seconds
@@ -488,15 +488,15 @@ export default function Game() {
     let hitCore = false;
     const c = centerRef.current;
 
-    obstacles.current.forEach((o) =&gt; {
+    obstacles.current.forEach((o) => {
       // Inward movement with brief slow after hit
       const slow = o._slowTimer || 0;
-      if (slow &gt; 0) o._slowTimer = Math.max(0, slow - dt);
-      const speedNow = o.speed * (o._slowTimer &amp;&amp; o._slowTimer &gt; 0 ? 0.55 : 1);
+      if (slow > 0) o._slowTimer = Math.max(0, slow - dt);
+      const speedNow = o.speed * (o._slowTimer &amp;&amp; o._slowTimer > 0 ? 0.55 : 1);
       o.radius -= speedNow * dt;
 
       // Ensure hitBy set exists (handles HMR/old references)
-      if (!o.hitBy) o.hitBy = new Set<number&gt;();
+      if (!o.hitBy) o.hitBy = new Set<number>();
 
       // Blink stalker timers and teleport
       if (o.isBlink) {
@@ -563,7 +563,7 @@ export default function Game() {
       }
 
       // Core collision (disabled during blink pre-telegraph)
-      const noCollisionNow = (o._preTeleMs || 0) &gt; 0;
+      const noCollisionNow = (o._preTeleMs || 0) > 0;
       if (!noCollisionNow &amp;&amp; o.radius <= CORE_RADIUS + o.size * 0.5) {
         if (o.isPower) {
           energyRef.current = Math.max(0, energyRef.current - 5);
@@ -577,8 +577,8 @@ export default function Game() {
 
     // Remove destroyed or out-of-bounds
     const beforeHadBlink = blinkAliveRef.current;
-    obstacles.current = obstacles.current.filter((o) =&gt; o.radius &gt; 0 &amp;&amp; o.radius < maxRadiusRef.current + 200 &amp;&amp; o.hp &gt; 0);
-    const hasBlink = obstacles.current.some((o) =&gt; o.isBlink);
+    obstacles.current = obstacles.current.filter((o) => o.radius > 0 &amp;&amp; o.radius < maxRadiusRef.current + 200 &amp;&amp; o.hp > 0);
+    const hasBlink = obstacles.current.some((o) => o.isBlink);
     blinkAliveRef.current = hasBlink ? true : false;
 
     if (hitCore) {
@@ -586,16 +586,16 @@ export default function Game() {
       setGameOver(true);
       setPaused(true);
       const final = Math.floor(scoreRef.current);
-      if (final &gt; best) {
+      if (final > best) {
         setBest(final);
         saveBest(final);
       }
     }
   }, [best, saveBest]);
 
-  useEffect(() =&gt; {
+  useEffect(() => {
     // audio init + RAF
-    (async () =&gt; {
+    (async () => {
       try {
         await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
         const full = await Audio.Sound.createAsync({ uri: SFX_FULL_URI }, { shouldPlay: false, volume: 0.9 });
@@ -606,7 +606,7 @@ export default function Game() {
     })();
 
     rafId.current = requestAnimationFrame(updateLoop);
-    return () =&gt; {
+    return () => {
       if (rafId.current != null) cancelAnimationFrame(rafId.current);
       try { fullSoundRef.current?.unloadAsync(); } catch {}
       try { quadSoundRef.current?.unloadAsync(); } catch {}
@@ -615,7 +615,7 @@ export default function Game() {
     };
   }, [updateLoop]);
 
-  const onPress = (e: GestureResponderEvent) =&gt; {
+  const onPress = (e: GestureResponderEvent) => {
     const { locationX, locationY } = e.nativeEvent;
     onTap(locationX, locationY);
   };
@@ -623,113 +623,113 @@ export default function Game() {
   const finalScore = Math.floor(score);
   const energyPct = Math.round(energy);
 
-  const hpColor = (ratio: number) =&gt; {
+  const hpColor = (ratio: number) => {
     if (ratio < 0.34) return COLORS.hpLow;
     if (ratio < 0.67) return COLORS.hpMid;
     return COLORS.hpHigh;
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]} onLayout={(e) =&gt; setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}&gt;
+    <View style={[styles.container, { paddingTop: insets.top }]} onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
       {/* HUD */}
-      <View style={[styles.hud, { top: insets.top + 10 }]}&gt;
-        <Text style={styles.score}&gt;Score: {finalScore}</Text&gt;
-        <View style={styles.energyWrap}&gt;
-          <Text style={styles.energyLabel}&gt;Energy</Text&gt;
-          <View style={styles.energyBar}&gt;
-            <View style={[styles.energyFill, { width: `${energyPct}%` }]} /&gt;
-          </View&gt;
-          <Text style={styles.energyPct}&gt;{energyPct}%</Text&gt;
-        </View&gt;
-        <Pressable accessibilityRole="button" onPress={() =&gt; setPaused((p) =&gt; !p)} style={styles.pauseBtn}&gt;
-          <Text style={styles.pauseText}&gt;{paused ? "Resume" : "Pause"}</Text&gt;
-        </Pressable&gt;
-      </View&gt;
+      <View style={[styles.hud, { top: insets.top + 10 }]}>
+        <Text style={styles.score}>Score: {finalScore}</Text>
+        <View style={styles.energyWrap}>
+          <Text style={styles.energyLabel}>Energy</Text>
+          <View style={styles.energyBar}>
+            <View style={[styles.energyFill, { width: `${energyPct}%` }]} />
+          </View>
+          <Text style={styles.energyPct}>{energyPct}%</Text>
+        </View>
+        <Pressable accessibilityRole="button" onPress={() => setPaused((p) => !p)} style={styles.pauseBtn}>
+          <Text style={styles.pauseText}>{paused ? "Resume" : "Pause"}</Text>
+        </Pressable>
+      </View>
 
       {/* Tap Layer */}
-      <Pressable style={StyleSheet.absoluteFill} onPress={onPress}&gt;
-        <Svg width={size.w} height={size.h}&gt;
+      <Pressable style={StyleSheet.absoluteFill} onPress={onPress}>
+        <Svg width={size.w} height={size.h}>
           {/* Ripples */}
-          {ripples.current.map((r) =&gt; {
+          {ripples.current.map((r) => {
             if (r.type === "full") {
               return (
-                <Circle key={r.id} cx={center.x} cy={center.y} r={r.radius} stroke={settings.colorFull} strokeOpacity={0.7} strokeWidth={2} fill="none" /&gt;
+                <Circle key={r.id} cx={center.x} cy={center.y} r={r.radius} stroke={settings.colorFull} strokeOpacity={0.7} strokeWidth={2} fill="none" />
               );
             } else {
               const path = arcStrokePath(center.x, center.y, r.radius, r.startAngle || 0, r.endAngle || 0);
-              return <Path key={r.id} d={path} stroke={settings.colorQuarter} strokeOpacity={0.8} strokeWidth={3} fill="none" /&gt;;
+              return <Path key={r.id} d={path} stroke={settings.colorQuarter} strokeOpacity={0.8} strokeWidth={3} fill="none" />;
             }
           })}
 
           {/* Core */}
-          <Circle cx={center.x} cy={center.y} r={CORE_RADIUS} fill={settings.colorCore} /&gt;
+          <Circle cx={center.x} cy={center.y} r={CORE_RADIUS} fill={settings.colorCore} />
 
           {/* Obstacles */}
-          <G&gt;
-            {obstacles.current.map((o) =&gt; {
+          <G>
+            {obstacles.current.map((o) => {
               const x = center.x + Math.cos(o.angle) * o.radius;
               const y = center.y + Math.sin(o.angle) * o.radius;
               const color = o.isPower ? COLORS.powerYellow : (o.tough ? COLORS.neonPurple : COLORS.neonBlue);
               const elems: any[] = [];
               const pre = o._preTeleMs || 0;
               const post = o._postSpawnMs || 0;
-              const fillOpacity = o.isBlink ? (pre &gt; 0 ? 0.4 : post &gt; 0 ? 0.7 : 1) : 1;
+              const fillOpacity = o.isBlink ? (pre > 0 ? 0.4 : post > 0 ? 0.7 : 1) : 1;
 
               if (o.shape === "circle") {
-                elems.push(<Circle key={`s-${o.id}`} cx={x} cy={y} r={o.size} fill={color} fillOpacity={fillOpacity} /&gt;);
+                elems.push(<Circle key={`s-${o.id}`} cx={x} cy={y} r={o.size} fill={color} fillOpacity={fillOpacity} />);
               } else {
-                elems.push(<Rect key={`s-${o.id}`} x={x - o.size} y={y - o.size} width={o.size * 2} height={o.size * 2} fill={color} fillOpacity={fillOpacity} /&gt;);
+                elems.push(<Rect key={`s-${o.id}`} x={x - o.size} y={y - o.size} width={o.size * 2} height={o.size * 2} fill={color} fillOpacity={fillOpacity} />);
               }
               if (o.tough &amp;&amp; o.hp < o.maxHp) {
                 const ratio = Math.max(0, o.hp / o.maxHp);
                 const barX = x - HP_BAR_W / 2;
                 const barY = y - o.size - HP_BAR_OFFSET;
                 elems.push(
-                  <G key={`hp-${o.id}`}&gt;
-                    <Rect x={barX} y={barY} width={HP_BAR_W} height={HP_BAR_H} fill={COLORS.hpBg} rx={2} /&gt;
-                    <Rect x={barX} y={barY} width={HP_BAR_W * ratio} height={HP_BAR_H} fill={hpColor(ratio)} rx={2} /&gt;
-                  </G&gt;
+                  <G key={`hp-${o.id}`}>
+                    <Rect x={barX} y={barY} width={HP_BAR_W} height={HP_BAR_H} fill={COLORS.hpBg} rx={2} />
+                    <Rect x={barX} y={barY} width={HP_BAR_W * ratio} height={HP_BAR_H} fill={hpColor(ratio)} rx={2} />
+                  </G>
                 );
               }
-              return <G key={o.id}&gt;{elems}</G&gt;;
+              return <G key={o.id}>{elems}</G>;
             })}
-          </G&gt;
-        </Svg&gt;
-      </Pressable&gt;
+          </G>
+        </Svg>
+      </Pressable>
 
       {/* Overlays */}
       {paused &amp;&amp; !gameOver &amp;&amp; (
-        <View style={styles.overlay}&gt;
-          <Text style={styles.overlayTitle}&gt;Paused</Text&gt;
-          <View style={styles.overlayButtons}&gt;
-            <Pressable style={[styles.overlayBtn, { borderColor: COLORS.neonBlue }]} onPress={() =&gt; setPaused(false)}&gt;
-              <Text style={styles.overlayBtnText}&gt;Resume</Text&gt;
-            </Pressable&gt;
-            <Pressable style={[styles.overlayBtn, { borderColor: COLORS.neonPink }]} onPress={reset}&gt;
-              <Text style={styles.overlayBtnText}&gt;Restart</Text&gt;
-            </Pressable&gt;
-            <Pressable style={[styles.overlayBtn, { borderColor: "#666" }]} onPress={() =&gt; router.replace("/") }&gt;
-              <Text style={styles.overlayBtnText}&gt;Main Menu</Text&gt;
-            </Pressable&gt;
-          </View&gt;
-        </View&gt;
+        <View style={styles.overlay}>
+          <Text style={styles.overlayTitle}>Paused</Text>
+          <View style={styles.overlayButtons}>
+            <Pressable style={[styles.overlayBtn, { borderColor: COLORS.neonBlue }]} onPress={() => setPaused(false)}>
+              <Text style={styles.overlayBtnText}>Resume</Text>
+            </Pressable>
+            <Pressable style={[styles.overlayBtn, { borderColor: COLORS.neonPink }]} onPress={reset}>
+              <Text style={styles.overlayBtnText}>Restart</Text>
+            </Pressable>
+            <Pressable style={[styles.overlayBtn, { borderColor: "#666" }]} onPress={() => router.replace("/") }>
+              <Text style={styles.overlayBtnText}>Main Menu</Text>
+            </Pressable>
+          </View>
+        </View>
       )}
 
       {gameOver &amp;&amp; (
-        <View style={styles.overlay}&gt;
-          <Text style={styles.overlayTitle}&gt;Game Over</Text&gt;
-          <Text style={styles.overlaySub}&gt;Score: {finalScore}  •  Best: {best}</Text&gt;
-          <View style={styles.overlayButtons}&gt;
-            <Pressable style={[styles.overlayBtn, { borderColor: COLORS.neonBlue }]} onPress={reset}&gt;
-              <Text style={styles.overlayBtnText}&gt;Retry</Text&gt;
-            </Pressable&gt;
-            <Pressable style={[styles.overlayBtn, { borderColor: "#666" }]} onPress={() =&gt; router.replace("/") }&gt;
-              <Text style={styles.overlayBtnText}&gt;Main Menu</Text&gt;
-            </Pressable&gt;
-          </View&gt;
-        </View&gt;
+        <View style={styles.overlay}>
+          <Text style={styles.overlayTitle}>Game Over</Text>
+          <Text style={styles.overlaySub}>Score: {finalScore}  •  Best: {best}</Text>
+          <View style={styles.overlayButtons}>
+            <Pressable style={[styles.overlayBtn, { borderColor: COLORS.neonBlue }]} onPress={reset}>
+              <Text style={styles.overlayBtnText}>Retry</Text>
+            </Pressable>
+            <Pressable style={[styles.overlayBtn, { borderColor: "#666" }]} onPress={() => router.replace("/") }>
+              <Text style={styles.overlayBtnText}>Main Menu</Text>
+            </Pressable>
+          </View>
+        </View>
       )}
-    </View&gt;
+    </View>
   );
 }
 
