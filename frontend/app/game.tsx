@@ -202,9 +202,9 @@ export default function Game() {
     const c = centerRef.current;
     const left = x < c.x;
     const top = y < c.y;
-    if (left &amp;&amp; top) return "TL";
-    if (!left &amp;&amp; top) return "TR";
-    if (left &amp;&amp; !top) return "BL";
+    if (left && top) return "TL";
+    if (!left && top) return "TR";
+    if (left && !top) return "BL";
     return "BR";
   };
 
@@ -297,10 +297,10 @@ export default function Game() {
     const canSpawn3 = next3HpCooldownRef.current <= 0;
 
     let hp = 1;
-    if (canSpawn3 &amp;&amp; Math.random() < 0.8) {
+    if (canSpawn3 && Math.random() < 0.8) {
       hp = 3;
       next3HpCooldownRef.current = 4000 + Math.random() * 1000; // 4-5s
-    } else if (canSpawn2 &amp;&amp; Math.random() < 0.7) {
+    } else if (canSpawn2 && Math.random() < 0.7) {
       hp = 2;
       next2HpCooldownRef.current = 2000 + Math.random() * 1000; // 2-3s
     }
@@ -386,7 +386,7 @@ export default function Game() {
       break; // accept first valid to keep perf bounded
     }
 
-    if (!found &amp;&amp; best) {
+    if (!found && best) {
       found = true;
     }
 
@@ -440,7 +440,7 @@ export default function Game() {
     ripples.current = ripples.current.filter((r) => r.radius < MAX_RIPPLE_RADIUS);
 
     // Blink Stalker gate: spawn once at score >= 27
-    if (!blinkSpawnedRef.current &amp;&amp; scoreRef.current >= 27) {
+    if (!blinkSpawnedRef.current && scoreRef.current >= 27) {
       blinkSpawnedRef.current = true;
       const o = createBlinkStalker();
       if (o) {
@@ -492,7 +492,7 @@ export default function Game() {
       // Inward movement with brief slow after hit
       const slow = o._slowTimer || 0;
       if (slow > 0) o._slowTimer = Math.max(0, slow - dt);
-      const speedNow = o.speed * (o._slowTimer &amp;&amp; o._slowTimer > 0 ? 0.55 : 1);
+      const speedNow = o.speed * (o._slowTimer && o._slowTimer > 0 ? 0.55 : 1);
       o.radius -= speedNow * dt;
 
       // Ensure hitBy set exists (handles HMR/old references)
@@ -517,7 +517,7 @@ export default function Game() {
             }
           }
         }
-        if ((o._teleportCdMs || 0) <= 0 &amp;&amp; !o._pendingTeleport) {
+        if ((o._teleportCdMs || 0) <= 0 && !o._pendingTeleport) {
           o._pendingTeleport = true;
           o._preTeleMs = BLINK_PRE_TELE_MS; // telegraph
         }
@@ -536,14 +536,14 @@ export default function Game() {
         const radialDiff = Math.abs(o.radius - r.radius);
         if (radialDiff < RIPPLE_THICKNESS) {
           const strength = 1 - radialDiff / RIPPLE_THICKNESS; // 0..1
-          const active = r.type === "full" || (r.type === "quarter" &amp;&amp; r.quadrant === qNow);
+          const active = r.type === "full" || (r.type === "quarter" && r.quadrant === qNow);
           if (active) {
             let pushBase = r.type === "full" ? PUSHBACK_FULL : PUSHBACK_QUAD;
             if (o.tough) pushBase *= (o.maxHp === 3 ? TOUGH_PUSH_MULT * PUSH_MULT_HP3 : TOUGH_PUSH_MULT);
             const push = pushBase * strength * dt;
             o.radius += push;
 
-            if (!damagedThisFrame &amp;&amp; !o.hitBy.has(r.id)) {
+            if (!damagedThisFrame && !o.hitBy.has(r.id)) {
               o.hp -= 1;
               o.hitBy.add(r.id);
               damagedThisFrame = true;
@@ -552,7 +552,7 @@ export default function Game() {
               o._origSpeed = o._origSpeed || o.speed;
 
               // Power orb reward on kill
-              if (o.hp <= 0 &amp;&amp; o.isPower &amp;&amp; !o._rewarded) {
+              if (o.hp <= 0 && o.isPower && !o._rewarded) {
                 energyRef.current = ENERGY_MAX;
                 setEnergy(energyRef.current);
                 o._rewarded = true;
@@ -564,7 +564,7 @@ export default function Game() {
 
       // Core collision (disabled during blink pre-telegraph)
       const noCollisionNow = (o._preTeleMs || 0) > 0;
-      if (!noCollisionNow &amp;&amp; o.radius <= CORE_RADIUS + o.size * 0.5) {
+      if (!noCollisionNow && o.radius <= CORE_RADIUS + o.size * 0.5) {
         if (o.isPower) {
           energyRef.current = Math.max(0, energyRef.current - 5);
           setEnergy(energyRef.current);
@@ -577,7 +577,7 @@ export default function Game() {
 
     // Remove destroyed or out-of-bounds
     const beforeHadBlink = blinkAliveRef.current;
-    obstacles.current = obstacles.current.filter((o) => o.radius > 0 &amp;&amp; o.radius < maxRadiusRef.current + 200 &amp;&amp; o.hp > 0);
+    obstacles.current = obstacles.current.filter((o) => o.radius > 0 && o.radius < maxRadiusRef.current + 200 && o.hp > 0);
     const hasBlink = obstacles.current.some((o) => o.isBlink);
     blinkAliveRef.current = hasBlink ? true : false;
 
@@ -680,7 +680,7 @@ export default function Game() {
               } else {
                 elems.push(<Rect key={`s-${o.id}`} x={x - o.size} y={y - o.size} width={o.size * 2} height={o.size * 2} fill={color} fillOpacity={fillOpacity} />);
               }
-              if (o.tough &amp;&amp; o.hp < o.maxHp) {
+              if (o.tough && o.hp < o.maxHp) {
                 const ratio = Math.max(0, o.hp / o.maxHp);
                 const barX = x - HP_BAR_W / 2;
                 const barY = y - o.size - HP_BAR_OFFSET;
@@ -698,7 +698,7 @@ export default function Game() {
       </Pressable>
 
       {/* Overlays */}
-      {paused &amp;&amp; !gameOver &amp;&amp; (
+      {paused && !gameOver && (
         <View style={styles.overlay}>
           <Text style={styles.overlayTitle}>Paused</Text>
           <View style={styles.overlayButtons}>
@@ -715,7 +715,7 @@ export default function Game() {
         </View>
       )}
 
-      {gameOver &amp;&amp; (
+      {gameOver && (
         <View style={styles.overlay}>
           <Text style={styles.overlayTitle}>Game Over</Text>
           <Text style={styles.overlaySub}>Score: {finalScore}  •  Best: {best}</Text>
