@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, G, Rect } from "react-native-svg";
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming, interpolateColor, Easing } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
+import { Audio } from "expo-av";
 
 const COLORS = {
   bg: "#000000",
