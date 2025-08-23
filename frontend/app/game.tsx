@@ -358,6 +358,46 @@ export default function Game() {
       tough: true,
       hitBy: new Set<number>(),
       isBlink: true,
+
+    // Update blink stalker logic (movement + teleport timers)
+    const cCenter = centerRef.current;
+    obstacles.current.forEach((o) => {
+      if (!o.isBlink) return;
+
+      // Timers (pause handled by early return above)
+      o._postSpawnMs = Math.max(0, (o._postSpawnMs || 0) - dtMs);
+      if (!o._pendingTeleport) {
+        o._teleportCdMs = Math.max(0, (o._teleportCdMs || 0) - dtMs);
+      } else {
+        // pre-telegraph ticking
+        o._preTeleMs = Math.max(0, (o._preTeleMs || 0) - dtMs);
+        if ((o._preTeleMs || 0) <= 0) {
+          // perform teleport now
+          const ok = attemptBlinkTeleport(o);
+          if (ok) {
+            o._pendingTeleport = false;
+            o._postSpawnMs = BLINK_POST_SPAWN_MS;
+            o._teleportCdMs = BLINK_TELEPORT_COOLDOWN_MS; // reset strict cooldown
+          } else {
+            // failed -> cancel and wait for next cooldown window
+            o._pendingTeleport = false;
+            o._teleportCdMs = BLINK_TELEPORT_COOLDOWN_MS;
+          }
+        }
+      }
+
+      // Trigger teleport when cooldown elapsed
+      if ((o._teleportCdMs || 0) <= 0 && !o._pendingTeleport) {
+        o._pendingTeleport = true;
+        o._preTeleMs = BLINK_PRE_TELE_MS; // start pre-telegraph
+      }
+
+      // Homing movement (slow)
+      const dx = cCenter.x - (cCenter.x + Math.cos(o.angle) * o.radius);
+      const dy = cCenter.y - (cCenter.y + Math.sin(o.angle) * o.radius);
+      // For now, enemies already move inward via radius decrement; blink stalker keeps same inward but with speed multiplier already set
+    });
+
       _teleportCdMs: BLINK_TELEPORT_COOLDOWN_MS,
       _preTeleMs: 0,
       _postSpawnMs: 0,
