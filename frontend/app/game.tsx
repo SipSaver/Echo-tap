@@ -52,6 +52,17 @@ const HP_BAR_W = 22;
 const HP_BAR_H = 3;
 const HP_BAR_OFFSET = 10;
 
+
+// Blink Stalker tuning
+const BLINK_HP = 8;
+const BLINK_SPEED_MULT = 0.6; // 60% of normal
+const BLINK_TELEPORT_COOLDOWN_MS = 4000; // strict 4.0s
+const BLINK_SCREEN_MARGIN_PCT = 0.08; // 8%
+const BLINK_CENTER_SAFE_PCT = 0.18; // 18%
+const BLINK_PLAYER_SAFE_PCT = 0.22; // 22%
+const BLINK_PRE_TELE_MS = 300;
+const BLINK_POST_SPAWN_MS = 150;
+
 // Audio URIs
 const SFX_FULL_URI = "https://customer-assets.emergentagent.com/job_wavepusher/artifacts/qmvyqr21_laser-shoot-38126.mp3";
 const SFX_QUAD_URI = "https://customer-assets.emergentagent.com/job_wavepusher/artifacts/myfr5ilv_retro-laser-1-236669.mp3";
