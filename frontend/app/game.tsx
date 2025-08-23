@@ -280,6 +280,15 @@ export default function Game() {
     }
   }, []);
 
+
+  const pickQuadrantFromAngle = (angRad: number): Quadrant => {
+    const a = ((angRad % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    if (a >= Math.PI && a < 1.5 * Math.PI) return "TL"; // -pi..-pi/2
+    if (a >= 1.5 * Math.PI || a < 0.5 * Math.PI) return "BR"; // around 0
+    if (a >= 0.5 * Math.PI && a < Math.PI) return "BL";
+    return "TR";
+  };
+
   const spawnObstacle = () => {
 
   const blinkSpawnedRef = useRef(false);
