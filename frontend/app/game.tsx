@@ -150,6 +150,10 @@ export default function Game() {
   const rafId = useRef<number | null>(null);
   const powerCooldownRef = useRef(0); // 7s cadence for yellow orb
 
+  // Blink Stalker lifecycle flags
+  const blinkSpawnedRef = useRef(false);
+  const blinkAliveRef = useRef(false);
+
   // audio
   const fullSoundRef = useRef<Audio.Sound | null>(null);
   const quadSoundRef = useRef<Audio.Sound | null>(null);
