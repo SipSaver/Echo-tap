@@ -100,6 +100,7 @@ interface Obstacle {
   _postSpawnMs?: number; // visual fade-in only
   _lastQuadrant?: Quadrant;
   _failedTp?: number; // last attempt failures count
+  _pendingTeleport?: boolean;
   _slowTimer?: number;
   _origSpeed?: number;
   _rewarded?: boolean;
