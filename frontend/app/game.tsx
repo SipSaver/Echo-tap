@@ -410,6 +410,74 @@ export default function Game() {
       // If pre-telegraph active, temporarily disable core collision
       const noCollisionNow = (o as any)._preTeleMs && (o as any)._preTeleMs > 0;
 
+  // Attempt to teleport the blink stalker to a safe spot
+  const attemptBlinkTeleport = (o: Obstacle): boolean => {
+    if (!o.isBlink) return false;
+    const c = centerRef.current;
+    const w = Math.max(1, Dimensions.get("window").width);
+    const h = Math.max(1, Dimensions.get("window").height);
+    const minDim = Math.min(w, h);
+    const marginX = w * BLINK_SCREEN_MARGIN_PCT;
+    const marginY = h * BLINK_SCREEN_MARGIN_PCT;
+    const centerSafe = minDim * BLINK_CENTER_SAFE_PCT;
+    const playerSafe = minDim * BLINK_PLAYER_SAFE_PCT;
+
+    // Current player position is the center core
+    const playerX = c.x;
+    const playerY = c.y;
+
+    // choose a different quadrant
+    const currentQ = o._lastQuadrant || pickQuadrantFromAngle(o.angle);
+    const choices: Quadrant[] = ["TL", "TR", "BL", "BR"].filter((q) => q !== currentQ) as Quadrant[];
+    const targetQ = choices[Math.floor(Math.random() * choices.length)];
+    const { start, end } = getAnglesForQuadrant(targetQ);
+
+    let best: { x: number; y: number; angle: number; radius: number; d: number } | null = null;
+    let found = false;
+
+    for (let i = 0; i < 10; i++) {
+      const ang = randomAngleWithin(start, end);
+      // sample radius within screen bounds minus margins
+      const rx = marginX + Math.random() * (w - marginX * 2);
+      const ry = marginY + Math.random() * (h - marginY * 2);
+      // convert sampled screen point back to polar
+      const x = rx;
+      const y = ry;
+      const dx = x - c.x;
+      const dy = y - c.y;
+      const rad = Math.hypot(dx, dy);
+      if (rad < centerSafe) continue; // too close to center
+      const distToPlayer = Math.hypot(x - playerX, y - playerY);
+      if (distToPlayer < playerSafe) continue; // too close to player
+
+      // within the intended quadrant?
+      const qq = getQuadrantFromPoint(x, y);
+      if (qq !== targetQ) continue;
+
+      const d = distToPlayer;
+      if (!best || d > best.d) best = { x, y, angle: ang, radius: rad, d };
+      found = true;
+      // we can accept the first passing point too, but keep best for fallback
+      if (found) break;
+    }
+
+    if (!found && best) {
+      // use farthest fallback
+      found = true;
+    }
+
+    if (!found || !best) {
+      o._failedTp = (o._failedTp || 0) + 1;
+      return false; // keep position and try again next cooldown
+    }
+
+    // apply instantaneous teleport
+    o.angle = Math.atan2(best.y - c.y, best.x - c.x);
+    o.radius = best.radius;
+    o._lastQuadrant = targetQ;
+    return true;
+  };
+
     };
     return o;
   };
