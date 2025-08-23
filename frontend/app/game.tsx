@@ -55,7 +55,7 @@ const HP_BAR_OFFSET = 10;
 // Blink Stalker tuning
 const BLINK_HP = 12;
 const BLINK_SPEED_MULT = 0.7; // ~70% of normal (slightly faster)
-const BLINK_TELEPORT_COOLDOWN_MS = 4000; // strict 4.0s
+const BLINK_TELEPORT_COOLDOWN_MS = 2000; // strict 2.0s
 const BLINK_SCREEN_MARGIN_PCT = 0.08; // 8%
 const BLINK_CENTER_SAFE_PCT = 0.18; // 18%
 const BLINK_PLAYER_SAFE_PCT = 0.22; // 22%
