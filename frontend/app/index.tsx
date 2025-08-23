@@ -155,7 +155,7 @@ export default function Index() {
 
         try {
           await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-          const bgm = await Audio.Sound.createAsync(require("../assets/audio/menu-bgm.mp3"), { shouldPlay: true, isLooping: true, volume: 0.55 });
+          const bgm = await Audio.Sound.createAsync(require("../assets/audio/menu-bgm.mp3"), { shouldPlay: musicEnabled, isLooping: true, volume: 0.55 });
           const click = await Audio.Sound.createAsync(require("../assets/audio/button-click.mp3"), { shouldPlay: false, volume: 0.8 });
           if (!mounted) {
             await bgm.sound.unloadAsync();
