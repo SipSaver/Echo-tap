@@ -68,6 +68,7 @@ const SFX_QUAD_URI = "https://customer-assets.emergentagent.com/job_wavepusher/a
 
 // Types
 
+
 type Quadrant = "TL" | "TR" | "BL" | "BR";
 
 interface Ripple {
