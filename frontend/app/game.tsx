@@ -102,6 +102,8 @@ interface Obstacle {
   _lastQuadrant?: Quadrant;
   _failedTp?: number; // last attempt failures count
   _pendingTeleport?: boolean;
+  _dyingMs?: number;
+  _exploded?: boolean;
   _slowTimer?: number;
   _origSpeed?: number;
   _rewarded?: boolean;
