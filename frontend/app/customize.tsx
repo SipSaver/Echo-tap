@@ -71,6 +71,7 @@ export default function Customize() {
   } = useAppearanceStore();
   // click sfx
   const click = useRef<Audio.Sound | null>(null);
+  const sfxEnabled = useAudioStore((s) => s.sfxEnabled);
   useEffect(() => {
     let mounted = true;
     (async () => {
