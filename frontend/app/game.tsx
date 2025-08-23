@@ -604,6 +604,8 @@ export default function Game() {
 
     if (hitCore) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      try { failedRef.current?.replayAsync(); } catch {}
+      try { gameBgmRef.current?.stopAsync(); } catch {}
       setGameOver(true);
       setPaused(true);
       const final = Math.floor(scoreRef.current);
