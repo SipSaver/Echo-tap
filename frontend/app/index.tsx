@@ -139,6 +139,39 @@ export default function Index() {
     breathe.value = withRepeat(withTiming(1, { duration: 2400, easing: Easing.inOut(Easing.sin) }), -1, true);
   }, [colorPhase, breathe]);
 
+  // Menu BGM + button click SFX
+  const menuBgm = useRef<Audio.Sound | null>(null);
+  const clickSfx = useRef<Audio.Sound | null>(null);
+  useFocusEffect(
+    useCallback(() => {
+      let mounted = true;
+      (async () => {
+        try {
+          await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+          const bgm = await Audio.Sound.createAsync(require("../assets/audio/menu-bgm.mp3"), { shouldPlay: true, isLooping: true, volume: 0.55 });
+          const click = await Audio.Sound.createAsync(require("../assets/audio/button-click.mp3"), { shouldPlay: false, volume: 0.8 });
+          if (!mounted) {
+            await bgm.sound.unloadAsync();
+            await click.sound.unloadAsync();
+            return;
+          }
+          menuBgm.current = bgm.sound;
+          clickSfx.current = click.sound;
+        } catch {}
+      })();
+      return () => {
+        mounted = false;
+        try { menuBgm.current?.unloadAsync(); } catch {}
+        try { clickSfx.current?.unloadAsync(); } catch {}
+        menuBgm.current = null;
+        clickSfx.current = null;
+      };
+    }, [])
+  );
+
+  const playClick = useCallback(() => { try { clickSfx.current?.replayAsync(); } catch {} }, []);
+
+
   const colorStyle = useAnimatedStyle(() => {
     const c = interpolateColor(colorPhase.value, [0, 0.33, 0.66, 1], [COLORS.neonBlue, COLORS.neonPink, COLORS.neonPurple, COLORS.neonBlue]);
     return { color: c } as any;
