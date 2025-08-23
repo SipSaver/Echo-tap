@@ -560,11 +560,18 @@ export default function Game() {
               o._slowTimer = 0.5; // seconds
               o._origSpeed = o._origSpeed || o.speed;
 
-              // Power orb reward on kill
-              if (o.hp <= 0 && o.isPower && !o._rewarded) {
-                energyRef.current = ENERGY_MAX;
-                setEnergy(energyRef.current);
-                o._rewarded = true;
+              // On-kill effects
+              if (o.hp <= 0) {
+                if (o.isPower && !o._rewarded) {
+                  energyRef.current = ENERGY_MAX;
+                  setEnergy(energyRef.current);
+                  o._rewarded = true;
+                }
+                if (o.isBlink && !o._exploded) {
+                  o._exploded = true;
+                  o._dyingMs = BLINK_DEATH_MS;
+                  try { explosionRef.current?.replayAsync(); } catch {}
+                }
               }
             }
           }
