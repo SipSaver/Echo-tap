@@ -150,6 +150,10 @@ export default function Index() {
     useCallback(() => {
       let mounted = true;
       (async () => {
+          if (!musicEnabled) {
+            await bgm.sound.stopAsync();
+          }
+
         try {
           await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
           const bgm = await Audio.Sound.createAsync(require("../assets/audio/menu-bgm.mp3"), { shouldPlay: true, isLooping: true, volume: 0.55 });
