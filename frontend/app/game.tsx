@@ -61,6 +61,7 @@ const BLINK_CENTER_SAFE_PCT = 0.18; // 18%
 const BLINK_PLAYER_SAFE_PCT = 0.22; // 22%
 const BLINK_PRE_TELE_MS = 300;
 const BLINK_POST_SPAWN_MS = 150;
+const BLINK_DEATH_MS = 220;
 
 // Audio: keep shot SFX as remote (existing), new local SFX for click/explosion/failed, and looped game BGM
 const SFX_FULL_URI = "https://customer-assets.emergentagent.com/job_wavepusher/artifacts/qmvyqr21_laser-shoot-38126.mp3";
