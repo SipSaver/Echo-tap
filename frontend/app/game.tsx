@@ -123,7 +123,7 @@ export default function Game() {
   }, [center, maxRadius]);
 
   const ripples = useRef<Ripple[]>([]);
-  const obstacles = useRef&lt;Obstacle[]&gt;([]);
+  const obstacles = useRef<Obstacle[]>([]);
   const nextId = useRef(1);
 
   const [score, setScore] = useState(0);
