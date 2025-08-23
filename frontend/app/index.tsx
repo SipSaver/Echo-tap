@@ -290,7 +290,7 @@ export default function Index() {
 
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.push("/settings")}
+            onPress={() => { playClick(); router.push("/settings"); }}
             style={({ pressed }) => [
               styles.smallButton,
               {
