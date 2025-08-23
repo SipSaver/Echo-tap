@@ -403,6 +403,9 @@ export default function Game() {
       _postSpawnMs: 0,
       _lastQuadrant: q,
       _failedTp: 0,
+      // If pre-telegraph active, temporarily disable core collision
+      const noCollisionNow = (o as any)._preTeleMs && (o as any)._preTeleMs > 0;
+
     };
     return o;
   };
