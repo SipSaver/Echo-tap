@@ -645,8 +645,17 @@ export default function Game() {
       if (rafId.current != null) cancelAnimationFrame(rafId.current);
       try { fullSoundRef.current?.unloadAsync(); } catch {}
       try { quadSoundRef.current?.unloadAsync(); } catch {}
+      try { clickSoundRef.current?.unloadAsync(); } catch {}
+      try { explosionRef.current?.unloadAsync(); } catch {}
+      try { failedRef.current?.unloadAsync(); } catch {}
+      try { gameBgmRef.current?.stopAsync(); } catch {}
+      try { gameBgmRef.current?.unloadAsync(); } catch {}
       fullSoundRef.current = null;
       quadSoundRef.current = null;
+      clickSoundRef.current = null;
+      explosionRef.current = null;
+      failedRef.current = null;
+      gameBgmRef.current = null;
     };
   }, [updateLoop]);
 
