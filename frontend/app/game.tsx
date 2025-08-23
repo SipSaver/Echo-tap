@@ -82,6 +82,13 @@ interface Obstacle {
   tough: boolean;
   hitBy: Set<number>; // ripple ids that already dealt damage
   isPower?: boolean; // yellow 3-HP energy orb
+  // Blink Stalker special flags
+  isBlink?: boolean;
+  _teleportCdMs?: number;
+  _preTeleMs?: number; // during this time, no collision
+  _postSpawnMs?: number; // visual fade-in only
+  _lastQuadrant?: Quadrant;
+  _failedTp?: number; // last attempt failures count
   _slowTimer?: number;
   _origSpeed?: number;
   _rewarded?: boolean;
