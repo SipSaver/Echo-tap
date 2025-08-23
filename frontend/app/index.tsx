@@ -195,6 +195,13 @@ export default function Index() {
 
   const playClick = useCallback(() => { if (!sfxEnabled) return; try { clickSfx.current?.replayAsync(); } catch {} }, [sfxEnabled]);
 
+  // Stable button styles
+  const playButtonStyle = useMemo(() => [styles.button, styles.playButton], []);
+  const playButtonPressedStyle = useMemo(() => [...playButtonStyle, styles.pressed], [playButtonStyle]);
+  const customizeButtonStyle = useMemo(() => [styles.smallButton, styles.customizeButton], []);
+  const customizeButtonPressedStyle = useMemo(() => [...customizeButtonStyle, styles.pressed], [customizeButtonStyle]);
+  const settingsButtonStyle = useMemo(() => [styles.smallButton, styles.settingsButton], []);
+  const settingsButtonPressedStyle = useMemo(() => [...settingsButtonStyle, styles.pressed], [settingsButtonStyle]);
 
   const colorStyle = useAnimatedStyle(() => {
     const c = interpolateColor(colorPhase.value, [0, 0.33, 0.66, 1], [COLORS.neonBlue, COLORS.neonPink, COLORS.neonPurple, COLORS.neonBlue]);
@@ -277,16 +284,7 @@ export default function Index() {
           accessibilityRole="button"
           onPress={() => { playClick(); onPlayPress(); }}
           onLayout={(e) => (playBtnLayout.current = e.nativeEvent.layout)}
-          style={({ pressed }) => [
-            styles.button,
-            {
-              borderColor: COLORS.neonBlue,
-              transform: [{ scale: pressed ? 0.98 : 1 }],
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-            },
-          ]}
+          style={({ pressed }) => (pressed ? playButtonPressedStyle : playButtonStyle)}
         >
           <Image source={require("../assets/icons/play.png")} style={styles.icon} resizeMode="contain" />
           <Text style={styles.buttonText}>Play</Text>
@@ -297,16 +295,7 @@ export default function Index() {
           <Pressable
             accessibilityRole="button"
             onPress={() => { playClick(); router.push("/customize"); }}
-            style={({ pressed }) => [
-              styles.smallButton,
-              {
-                borderColor: COLORS.neonPurple,
-                transform: [{ scale: pressed ? 0.98 : 1 }],
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-              },
-            ]}
+            style={({ pressed }) => (pressed ? customizeButtonPressedStyle : customizeButtonStyle)}
           >
             <Image source={require("../assets/icons/edit.png")} style={styles.icon} resizeMode="contain" />
             <Text style={styles.buttonText}>Customization</Text>
@@ -315,16 +304,7 @@ export default function Index() {
           <Pressable
             accessibilityRole="button"
             onPress={() => { playClick(); router.push("/settings"); }}
-            style={({ pressed }) => [
-              styles.smallButton,
-              {
-                borderColor: COLORS.neonPink,
-                transform: [{ scale: pressed ? 0.98 : 1 }],
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-              },
-            ]}
+            style={({ pressed }) => (pressed ? settingsButtonPressedStyle : settingsButtonStyle)}
           >
             <Image source={require("../assets/icons/settings.png")} style={styles.icon} resizeMode="contain" />
             <Text style={styles.buttonText}>Settings</Text>
@@ -385,6 +365,24 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     alignItems: "center",
     backgroundColor: "rgba(255,255,255,0.03)",
+  },
+  playButton: {
+    borderColor: COLORS.neonBlue,
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  customizeButton: {
+    borderColor: COLORS.neonPurple,
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  settingsButton: {
+    borderColor: COLORS.neonPink,
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  pressed: {
+    transform: [{ scale: 0.98 }],
   },
   buttonText: {
     color: COLORS.white,
