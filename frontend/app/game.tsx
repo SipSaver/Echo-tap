@@ -128,7 +128,7 @@ export default function Game() {
 
   const [score, setScore] = useState(0);
   const scoreRef = useRef(0);
-  const [best, setBest] = useState&lt;number&gt;(0);
+  const [best, setBest] = useState<number>(0);
   const [paused, setPaused] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const pausedRef = useRef(false);
