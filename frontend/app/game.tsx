@@ -122,7 +122,7 @@ export default function Game() {
     maxRadiusRef.current = maxRadius;
   }, [center, maxRadius]);
 
-  const ripples = useRef&lt;Ripple[]&gt;([]);
+  const ripples = useRef<Ripple[]>([]);
   const obstacles = useRef&lt;Obstacle[]&gt;([]);
   const nextId = useRef(1);
 
