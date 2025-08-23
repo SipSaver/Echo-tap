@@ -176,7 +176,7 @@ export default function Index() {
     }, [])
   );
 
-  const playClick = useCallback(() => { try { clickSfx.current?.replayAsync(); } catch {} }, []);
+  const playClick = useCallback(() => { if (!sfxEnabled) return; try { clickSfx.current?.replayAsync(); } catch {} }, [sfxEnabled]);
 
 
   const colorStyle = useAnimatedStyle(() => {
