@@ -64,6 +64,24 @@ export default function Settings() {
 
       <View style={styles.card}>
         <Text style={styles.label}>Best Score</Text>
+      <View style={styles.card}>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+          <Text style={styles.label}>Music</Text>
+          <Switch
+            value={useAudioStore.getState().musicEnabled}
+            onValueChange={(v) => useAudioStore.getState().setMusicEnabled(v)}
+          />
+        </View>
+        <View style={{ height: 10 }} />
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+          <Text style={styles.label}>SFX</Text>
+          <Switch
+            value={useAudioStore.getState().sfxEnabled}
+            onValueChange={(v) => useAudioStore.getState().setSfxEnabled(v)}
+          />
+        </View>
+      </View>
+
         <Text style={styles.value}>{best}</Text>
       </View>
 
