@@ -14,6 +14,23 @@ const COLORS = {
 
 export default function Settings() {
   const insets = useSafeAreaInsets();
+  const click = useRef<Audio.Sound | null>(null);
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+        const s = await Audio.Sound.createAsync(require("../assets/audio/button-click.mp3"), { shouldPlay: false, volume: 0.8 });
+        if (!mounted) { await s.sound.unloadAsync(); return; }
+        click.current = s.sound;
+      } catch {}
+    })();
+    return () => {
+      try { click.current?.unloadAsync(); } catch {}
+      click.current = null;
+    };
+  }, []);
+
   const router = useRouter();
   const [best, setBest] = useState<number>(0);
 
