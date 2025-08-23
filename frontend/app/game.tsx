@@ -737,13 +737,13 @@ export default function Game() {
         <View style={styles.overlay}>
           <Text style={styles.overlayTitle}>Paused</Text>
           <View style={styles.overlayButtons}>
-            <Pressable style={[styles.overlayBtn, { borderColor: COLORS.neonBlue }]} onPress={() => setPaused(false)}>
+            <Pressable style={[styles.overlayBtn, { borderColor: COLORS.neonBlue }]} onPress={() => { playClick(); setPaused(false); }}>
               <Text style={styles.overlayBtnText}>Resume</Text>
             </Pressable>
-            <Pressable style={[styles.overlayBtn, { borderColor: COLORS.neonPink }]} onPress={reset}>
+            <Pressable style={[styles.overlayBtn, { borderColor: COLORS.neonPink }]} onPress={() => { playClick(); reset(); }}>
               <Text style={styles.overlayBtnText}>Restart</Text>
             </Pressable>
-            <Pressable style={[styles.overlayBtn, { borderColor: "#666" }]} onPress={() => router.replace("/") }>
+            <Pressable style={[styles.overlayBtn, { borderColor: "#666" }]} onPress={() => { playClick(); router.replace("/"); }}>
               <Text style={styles.overlayBtnText}>Main Menu</Text>
             </Pressable>
           </View>
