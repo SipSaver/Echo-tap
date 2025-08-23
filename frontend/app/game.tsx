@@ -138,6 +138,9 @@ export default function Game() {
   const [gameOver, setGameOver] = useState(false);
   const pausedRef = useRef(false);
   const gameOverRef = useRef(false);
+  const musicEnabled = useAudioStore((s) => s.musicEnabled);
+  const sfxEnabled = useAudioStore((s) => s.sfxEnabled);
+
   useEffect(() => { pausedRef.current = paused; }, [paused]);
   useEffect(() => { gameOverRef.current = gameOver; }, [gameOver]);
 
