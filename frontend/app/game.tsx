@@ -63,8 +63,8 @@ const BLINK_PRE_TELE_MS = 300;
 const BLINK_POST_SPAWN_MS = 150;
 
 // Audio URIs
-const SFX_FULL = require("../assets/audio/game-bgm.mp3"); // not used, placeholder to avoid network
-const SFX_QUAD = require("../assets/audio/button-click.mp3"); // placeholder to avoid network
+const SFX_FULL = require("../assets/audio/edm-gaming-music-335408.mp3"); // game bgm
+const SFX_QUAD = require("../assets/audio/retro-laser-1-236669.mp3"); // quad laser - if bundled
 
 // Types
 
