@@ -530,6 +530,19 @@ export default function Game() {
         if (radialDiff < RIPPLE_THICKNESS) {
           const strength = 1 - radialDiff / RIPPLE_THICKNESS; // 0..1
           const active = r.type === "full" || (r.type === "quarter" && r.quadrant === qNow);
+              if (o.isBlink) {
+                // simple FX: blink/flash during pre-telegraph and brief fade-in after
+                const pre = o._preTeleMs || 0;
+                const post = o._postSpawnMs || 0;
+                const alpha = pre > 0 ? 0.4 : post > 0 ? 0.7 : 1;
+                elems.push(
+                  o.shape === "circle"
+                    ? <Circle key={`b-${o.id}`} cx={x} cy={y} r={o.size * 1.2} stroke={color} strokeOpacity={0.5} strokeWidth={2} fillOpacity={alpha} fill={color} />
+                    : <Rect key={`b-${o.id}`} x={x - o.size} y={y - o.size} width={o.size * 2} height={o.size * 2} stroke={color} strokeOpacity={0.5} strokeWidth={2} fillOpacity={alpha} fill={color} />
+                );
+                return <G key={o.id}>{elems}</G>;
+              }
+
           if (active) {
             let pushBase = r.type === "full" ? PUSHBACK_FULL : PUSHBACK_QUAD;
             if (o.tough) pushBase *= (o.maxHp === 3 ? TOUGH_PUSH_MULT * PUSH_MULT_HP3 : TOUGH_PUSH_MULT);
